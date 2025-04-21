@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Contacts</h1>
+<form method="get" action="{% url 'contact_list' %}">
+    <input type="text" name="q" placeholder="Zoek..." value="{{ query }}">
+    <button type="submit">Search</button>
+</form>
+<ul>
+    {% for x in contacts %}
+        <li>{{ x.firstname}} {{ x.lastname}} {{ x.date_of_birth}} <a href="{% url 'contact_delete' x.id %}">Verwijder</a> <a href="{% url 'contact_update' x.id %}">Pas aan</a></li>
+        {% empty %}
+        <li>Geen gevonden contacten</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'contact_create' %}">Add New Contact</a>
+</form>
+</body>
+</html>

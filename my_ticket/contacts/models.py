@@ -1,4 +1,5 @@
 from django.db import models
+import datetime
 
 
 class Address(models.Model):
@@ -12,6 +13,7 @@ class Address(models.Model):
 class Contact(models.Model):
     firstname = models.CharField(max_length=255)
     lastname = models.CharField(max_length=255)
+    date_of_birth = models.DateField(default=datetime.date.today)
 
 
 class ContextContact(models.Model):
