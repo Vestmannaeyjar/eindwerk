@@ -1,0 +1,24 @@
+from django.db import models
+
+
+class Address(models.Model):
+    name = models.CharField(max_length=255)
+    street = models.CharField(max_length=255)
+    zip = models.CharField(max_length=255)
+    city = models.CharField(max_length=255)
+    country = models.CharField(max_length=255)
+
+
+class Contact(models.Model):
+    firstname = models.CharField(max_length=255)
+    lastname = models.CharField(max_length=255)
+
+
+class ContextContact(models.Model):
+    contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
+    context = models.CharField(max_length=255)
+    function = models.CharField(max_length=255)
+    emailaddress = models.EmailField(max_length=255)
+    telephone = models.CharField(max_length=30)
+    postaladdress = models.ForeignKey(Address, on_delete=models.CASCADE)
+    parking_info = models.TextField()
