@@ -9,6 +9,8 @@ class Address(models.Model):
     city = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
 
+    def __str__(self):
+        return f"{self.street}, {self.zip} {self.city}, {self.country} ({self.name})"
 
 class Contact(models.Model):
     firstname = models.CharField(max_length=255)

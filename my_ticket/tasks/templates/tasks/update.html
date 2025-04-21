@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Pas taak aan</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Opslaan</button>
+</form>
+
+<a href="{% url 'task_list' %}">Terug naar taken</a>
+
+</body>
+</html>

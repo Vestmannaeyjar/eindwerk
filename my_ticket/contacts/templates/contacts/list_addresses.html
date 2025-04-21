@@ -2,22 +2,21 @@
 <html>
 <body>
 
-<h1>Contacten</h1>
-<a href="{% url 'contact_create' %}">Voeg nieuw contact toe</a>
-<form method="get" action="{% url 'contact_list' %}">
-    <input type="text" name="q" placeholder="Zoek contacten..." value="{{ request.GET.search }}">
+<h1>Adressen</h1>
+<a href="{% url 'address_create' %}">Voeg nieuw adres toe</a>
+<form method="get" action="{% url 'address_list' %}">
+    <input type="text" name="q" placeholder="Zoek adressen..." value="{{ request.GET.search }}">
     <button type="submit">Zoek</button>
-    <button type="reset" onclick="window.location.href='{% url 'contact_list' %}';">Reset</button>
+    <button type="reset" onclick="window.location.href='{% url 'address_list' %}';">Reset</button>
 </form>
 <ul>
     {% for x in page_obj %}
-        <li>{{ x.firstname}} {{ x.lastname}} {{ x.date_of_birth|date:"d-m-Y"}}
-            <a href="{% url 'contact_delete' x.id %}">Verwijder</a>
-            <a href="{% url 'contact_update' x.id %}">Wijzig</a>
-            <a href="{% url 'contact_detail' x.id %}">{{ x.num_context_contacts }} contextuele contactgegevens</a>
+        <li>{{ x.street}} {{ x.zip}} {{ x.city }} {{ x.country }}
+            <a href="{% url 'address_delete' x.id %}">Verwijder</a>
+            <a href="{% url 'address_update' x.id %}">Wijzig</a>
         </li>
         {% empty %}
-        <li>Geen gevonden contacten</li>
+        <li>Geen gevonden adressen</li>
     {% endfor %}
 </ul>
 

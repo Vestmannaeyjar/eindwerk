@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Contextuele contactgegevens voor {{ contact.firstname }} {{ contact.lastname }}</h1>
+
+<p><strong>Voornaam:</strong> {{ contact.firstname }}</p>
+<p><strong>Familienaam:</strong> {{ contact.lastname }}</p>
+<p><strong>Geboortedatum:</strong> {{ contact.date_of_birth|date:"d-m-Y" }}</p>
+
+<a href="{% url 'contextcontact_create' contact.id %}">Voeg contextuele contactgegevens toe</a>
+
+<h2>Contextuele contactgegevens</h2>
+<ul>
+    {% for context_contact in context_contacts %}
+        <li>
+            <strong>Context:</strong> {{ context_contact.context }}<br>
+            <strong>Functie:</strong> {{ context_contact.function }}<br>
+            <strong>E-mail:</strong> {{ context_contact.emailaddress }}<br>
+            <strong>Telefoon:</strong> {{ context_contact.telephone }}<br>
+            <strong>Adres:</strong> {{ context_contact.postaladdress.street }}, {{ context_contact.postaladdress.zip }} {{ context_contact.postaladdress.city }}<br>
+            <strong>Parkeer Info:</strong> {{ context_contact.parking_info }}<br>
+            <a href="{% url 'contextcontact_delete' context_contact.id %}">Verwijder</a>
+            <a href="{% url 'contextcontact_update' context_contact.id %}">Wijzig</a>
+        </li>
+    {% empty %}
+        <li>Geen contextuele contactgegevens beschikbaar.</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'contact_list' %}">Terug naar contacten</a>
+
+</body>
+</html>

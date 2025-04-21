@@ -1,6 +1,7 @@
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from contacts.models import Address, ContextContact
+import datetime
 
 
 class Action(models.Model):
@@ -74,27 +75,37 @@ class Project(models.Model):
 class Task(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    assignment = models.ForeignKey(ContextContact, on_delete=models.CASCADE)
-    action = models.ForeignKey(Action, on_delete=models.CASCADE)
+
+    assignment = models.ForeignKey(ContextContact, on_delete=models.CASCADE, blank=True, null=True)
+    action = models.ForeignKey(Action, on_delete=models.CASCADE, blank=True, null=True)
+
     subject = models.CharField(max_length=255)
-    execution_startdate = models.DateField()
-    execution_starttime = models.TimeField()
-    execution_enddate = models.DateField()
-    execution_endtime = models.TimeField()
-    full_days = models.BooleanField()
-    duration_registered = models.TimeField()
-    duration_projected_internal = models.TimeField()
-    duration_projected_external = models.TimeField()
-    deadline = models.DateTimeField()
-    cycle_group = models.ForeignKey(Cycle, on_delete=models.CASCADE)
-    tags = models.ManyToManyField(Tag, related_name='tasks')
-    location = models.ForeignKey(Address, on_delete=models.CASCADE)
-    meetings = models.ManyToManyField(Meeting, related_name='tasks')
+
+    execution_startdate = models.DateField(blank=True, null=True)
+    execution_starttime = models.TimeField(blank=True, null=True)
+    execution_enddate = models.DateField(blank=True, null=True)
+    execution_endtime = models.TimeField(blank=True, null=True)
+
+    full_days = models.BooleanField(blank=True, default=False)
+    duration_registered = models.TimeField(blank=True, null=True)
+    duration_projected_internal = models.TimeField(blank=True, null=True)
+    duration_projected_external = models.TimeField(blank=True, null=True)
+
+    deadline = models.DateTimeField(blank=True, null=True)
+
+    cycle_group = models.ForeignKey(Cycle, on_delete=models.CASCADE, blank=True, null=True)
+    tags = models.ManyToManyField(Tag, related_name='tasks', blank=True)
+
+    location = models.ForeignKey(Address, on_delete=models.CASCADE, blank=True, null=True)
+    meetings = models.ManyToManyField(Meeting, related_name='tasks', blank=True)
+
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='subtasks')
     prerequisites = models.ManyToManyField('self', symmetrical=False, blank=True, related_name='unlocks')
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    context = models.ForeignKey(Context, on_delete=models.CASCADE)
-    type = models.ForeignKey(Type, on_delete=models.CASCADE)
-    state = models.ForeignKey(State, on_delete=models.CASCADE)
-    attachment = models.FileField()
-    git_branch = models.CharField(max_length=255)
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True, null=True)
+    context = models.ForeignKey(Context, on_delete=models.CASCADE, blank=True, null=True)
+    type = models.ForeignKey(Type, on_delete=models.CASCADE, blank=True, null=True)
+    state = models.ForeignKey(State, on_delete=models.CASCADE, blank=True, null=True)
+
+    attachment = models.FileField(blank=True, null=True)
+    git_branch = models.CharField(max_length=255, blank=True)
