@@ -1,6 +1,6 @@
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from contacts import Address, ContextContact
+from contacts.models import Address, ContextContact
 
 
 class Action(models.Model):
@@ -15,8 +15,9 @@ class Cycle(models.Model):
     LEVELS = [('day', 'Dag'), ('week', 'Week'), ('month', 'Maand'), ('year', 'Jaar')]
     WEEKDAYS = [('Monday', 'maandag'), ('Tuesday', 'dinsdag'), ('Wednesday', 'woensdag'), ('Thursday', 'donderdag'), ('Friday', 'vrijdag'), ('Saturday', 'zaterdag'), ('Sunday', 'zondag')]
     MONTHS = [('January', 'januari'), ('February', 'februari'), ('March', 'maart'), ('April', 'april'), ('May', 'mei'), ('June', 'juni'), ('July', 'juli'), ('August', 'augustus'), ('September', 'september'), ('October', 'oktober'), ('November', 'november'), ('December', 'december')]
-    level = ArrayField(models.CharField(max_length=50, choices="LEVELS"), blank=True, default=list)
-    weekday = ArrayField(models.CharField(max_length=50, choices="WEEKDAYS"), blank=True, default=list)
+    level = ArrayField(models.CharField(max_length=50, choices=LEVELS), blank=True, default=list)
+    weekday = ArrayField(models.CharField(max_length=50, choices=WEEKDAYS), blank=True, default=list)
+    month = ArrayField(models.CharField(max_length=50, choices=MONTHS), blank=True, default=list)
     cycle_distance = models.IntegerField()
     days_of_level = ArrayField(
         base_field=models.IntegerField(),
@@ -91,9 +92,9 @@ class Task(models.Model):
     meetings = models.ManyToManyField(Meeting, related_name='tasks')
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='subtasks')
     prerequisites = models.ManyToManyField('self', symmetrical=False, blank=True, related_name='unlocks')
-    project = models.ForeignKey(Project, on_delete='models.CASCADE')
-    context = models.ForeignKey(Context, on_delete='models.CASCADE')
-    type = models.ForeignKey(Type, on_delete='models.CASCADE')
-    state = models.ForeignKey(State, on_delete='models.CASCADE')
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    context = models.ForeignKey(Context, on_delete=models.CASCADE)
+    type = models.ForeignKey(Type, on_delete=models.CASCADE)
+    state = models.ForeignKey(State, on_delete=models.CASCADE)
     attachment = models.FileField()
     git_branch = models.CharField(max_length=255)
