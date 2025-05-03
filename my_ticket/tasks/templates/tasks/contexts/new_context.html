@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Voeg een nieuwe context toe</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Opslaan</button>
+</form>
+
+<a href="{% url 'context_list' %}">Terug naar contexten</a>
+
+</body>
+</html>

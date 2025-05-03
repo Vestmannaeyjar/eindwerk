@@ -1,4 +1,5 @@
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
 from django.db import models
 from contacts.models import Address, ContextContact
 import datetime
@@ -7,9 +8,15 @@ import datetime
 class Action(models.Model):
     name = models.CharField(max_length=255)
 
+    def __str__(self):
+        return f"{self.name}"
+
 
 class Context(models.Model):
     name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.name}"
 
 
 class Cycle(models.Model):
@@ -32,18 +39,30 @@ class Cycle(models.Model):
 class State(models.Model):
     name = models.CharField(max_length=255)
 
+    def __str__(self):
+        return f"{self.name}"
+
 
 class Tag(models.Model):
     name = models.CharField(max_length=255)
 
+    def __str__(self):
+        return f"{self.name}"
 
-class Type(models.Model):
+
+class TaskType(models.Model):
     name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.name}"
 
 
 class MeetingRoom(models.Model):
     name = models.CharField()
     capacity = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.name}"
 
 
 class Meeting(models.Model):
@@ -53,9 +72,15 @@ class Meeting(models.Model):
     meetingroom = models.ForeignKey(MeetingRoom, on_delete=models.CASCADE)
     digital_space = models.URLField()
 
+    def __str__(self):
+        return f"{self.date} {self.name} {self.meetingroom}"
+
 
 class MeetingAcceptance(models.Model):
     name = models.CharField()
+
+    def __str__(self):
+        return f"{self.name}"
 
 
 class MeetingContextContact(models.Model):
@@ -68,8 +93,11 @@ class Project(models.Model):
     name = models.CharField(max_length=255)
     startdate = models.DateField()
     enddate = models.DateField()
-    total_projected_time_internal = models.TimeField
-    total_projected_time_external = models.TimeField
+    total_projected_time_internal = models.TimeField(default="00:00.000")
+    total_projected_time_external = models.TimeField(default="00:00.000")
+
+    def __str__(self):
+        return f"{self.name} {self.startdate} - {self.enddate}"
 
 
 class Task(models.Model):
@@ -87,9 +115,9 @@ class Task(models.Model):
     execution_endtime = models.TimeField(blank=True, null=True)
 
     full_days = models.BooleanField(blank=True, default=False)
-    duration_registered = models.TimeField(blank=True, null=True)
-    duration_projected_internal = models.TimeField(blank=True, null=True)
-    duration_projected_external = models.TimeField(blank=True, null=True)
+    duration_registered = models.DurationField(blank=True, null=True)
+    duration_projected_internal = models.DurationField(blank=True, null=True)
+    duration_projected_external = models.DurationField(blank=True, null=True)
 
     deadline = models.DateTimeField(blank=True, null=True)
 
@@ -104,8 +132,11 @@ class Task(models.Model):
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True, null=True)
     context = models.ForeignKey(Context, on_delete=models.CASCADE, blank=True, null=True)
-    type = models.ForeignKey(Type, on_delete=models.CASCADE, blank=True, null=True)
+    tasktype = models.ForeignKey(TaskType, on_delete=models.CASCADE, blank=True, null=True)
     state = models.ForeignKey(State, on_delete=models.CASCADE, blank=True, null=True)
 
     attachment = models.FileField(blank=True, null=True)
     git_branch = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return f"{self.subject}"
