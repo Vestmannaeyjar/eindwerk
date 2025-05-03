@@ -1,8 +1,6 @@
 from django.contrib.postgres.fields import ArrayField
-from django.core.exceptions import ValidationError
 from django.db import models
 from contacts.models import Address, ContextContact
-import datetime
 
 
 class Action(models.Model):

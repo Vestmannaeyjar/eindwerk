@@ -30,7 +30,7 @@ class StateForm(forms.ModelForm):
 
 class TagForm(forms.ModelForm):
     class Meta:
-        model = Task
+        model = Tag
         fields = '__all__'
 
 

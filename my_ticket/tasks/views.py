@@ -214,7 +214,7 @@ def tag_list(request):
     tags = Tag.objects.all()
 
     if query:
-        tasks = tags.filter(
+        tags = tags.filter(
             Q(name__icontains=query)
         )
 
@@ -222,7 +222,7 @@ def tag_list(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'tags/list_tags.html', {'page_obj': page_obj, 'query': query})
+    return render(request, 'tasks/tags/list_tags.html', {'page_obj': page_obj, 'query': query})
 
 
 def tag_create(request):
@@ -233,21 +233,21 @@ def tag_create(request):
             return redirect('tag_list')
     else:
         form = TagForm()
-    return render(request, 'tags/new_tag.html', {'form': form})
+    return render(request, 'tasks/tags/new_tag.html', {'form': form})
 
 
 def tag_delete(request, tag_id):
-    tag = get_object_or_404(Task, id=tag_id)
+    tag = get_object_or_404(Tag, id=tag_id)
 
     if request.method == 'POST':
         tag.delete()
         return redirect('tag_list')
 
-    return render(request, 'tags/delete_tag.html', {'tag': tag})
+    return render(request, 'tasks/tags/delete_tag.html', {'tag': tag})
 
 
 def tag_update(request, tag_id):
-    tag = get_object_or_404(Task, id=tag_id)
+    tag = get_object_or_404(Tag, id=tag_id)
 
     if request.method == "POST":
         form = TagForm(request.POST, instance=tag)
@@ -257,7 +257,7 @@ def tag_update(request, tag_id):
     else:
         form = TagForm(instance=tag)
 
-    return render(request, 'tags/update_tag.html', {'form': form, 'tag': tag})
+    return render(request, 'tasks/tags/update_tag.html', {'form': form, 'tag': tag})
 
 
 def task_list(request):
