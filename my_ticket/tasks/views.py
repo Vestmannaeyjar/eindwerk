@@ -1,8 +1,8 @@
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, render, redirect
-from .models import Action, Context, Project, State, Task, TaskType
-from .forms import ActionForm, ContextForm, ProjectForm, StateForm, TaskForm, TaskTypeForm
+from .models import Action, Context, Project, State, Tag, Task, TaskType
+from .forms import ActionForm, ContextForm, ProjectForm, StateForm, TagForm, TaskForm, TaskTypeForm
 
 
 def action_list(request):
@@ -18,7 +18,7 @@ def action_list(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'tasks/actions/list_actions.html', {'page_obj': page_obj, 'query': query})
+    return render(request, 'tasks/actions/list_tags.html', {'page_obj': page_obj, 'query': query})
 
 
 def action_create(request):
@@ -29,7 +29,7 @@ def action_create(request):
             return redirect('action_list')
     else:
         form = ActionForm()
-    return render(request, 'tasks/actions/new_action.html', {'form': form})
+    return render(request, 'tasks/actions/new_tag.html', {'form': form})
 
 
 def action_delete(request, action_id):
@@ -39,7 +39,7 @@ def action_delete(request, action_id):
         action.delete()
         return redirect('action_list')
 
-    return render(request, 'tasks/actions/delete_action.html', {'action': action})
+    return render(request, 'tasks/actions/delete_tag.html', {'action': action})
 
 
 def action_update(request, action_id):
@@ -53,7 +53,7 @@ def action_update(request, action_id):
     else:
         form = ActionForm(instance=action)
 
-    return render(request, 'tasks/actions/update_action.html', {'form': form, 'action': action})
+    return render(request, 'tasks/actions/update_tag.html', {'form': form, 'action': action})
 
 
 def context_list(request):
@@ -207,6 +207,57 @@ def state_update(request, state_id):
         form = StateForm(instance=state)
 
     return render(request, 'tasks/states/update_state.html', {'form': form, 'state': state})
+
+
+def tag_list(request):
+    query = request.GET.get('q')
+    tags = Tag.objects.all()
+
+    if query:
+        tasks = tags.filter(
+            Q(name__icontains=query)
+        )
+
+    paginator = Paginator(tags, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'tags/list_tags.html', {'page_obj': page_obj, 'query': query})
+
+
+def tag_create(request):
+    if request.method == "POST":
+        form = TagForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('tag_list')
+    else:
+        form = TagForm()
+    return render(request, 'tags/new_tag.html', {'form': form})
+
+
+def tag_delete(request, tag_id):
+    tag = get_object_or_404(Task, id=tag_id)
+
+    if request.method == 'POST':
+        tag.delete()
+        return redirect('tag_list')
+
+    return render(request, 'tags/delete_tag.html', {'tag': tag})
+
+
+def tag_update(request, tag_id):
+    tag = get_object_or_404(Task, id=tag_id)
+
+    if request.method == "POST":
+        form = TagForm(request.POST, instance=tag)
+        if form.is_valid():
+            form.save()
+            return redirect('tag_list')
+    else:
+        form = TagForm(instance=tag)
+
+    return render(request, 'tags/update_tag.html', {'form': form, 'tag': tag})
 
 
 def task_list(request):

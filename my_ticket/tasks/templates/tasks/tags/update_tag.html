@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Pas tag aan</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Opslaan</button>
+</form>
+
+<a href="{% url 'tag_list' %}">Terug naar tags</a>
+
+</body>
+</html>

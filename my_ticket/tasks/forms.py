@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import Action, Context, Project, State, Task, TaskType
+from .models import Action, Context, Project, State, Tag, Task, TaskType
 
 
 class ActionForm(forms.ModelForm):
@@ -25,6 +25,12 @@ class ProjectForm(forms.ModelForm):
 class StateForm(forms.ModelForm):
     class Meta:
         model = State
+        fields = '__all__'
+
+
+class TagForm(forms.ModelForm):
+    class Meta:
+        model = Task
         fields = '__all__'
 
 
