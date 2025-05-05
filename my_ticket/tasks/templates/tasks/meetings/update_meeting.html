@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Pas vergadering aan</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Opslaan</button>
+</form>
+
+<a href="{% url 'meeting_list' %}">Terug naar vergaderingen</a>
+
+</body>
+</html>

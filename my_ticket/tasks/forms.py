@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import Action, Context, Project, State, Tag, Task, TaskType
+from .models import Action, Context, Meeting, MeetingAcceptance, MeetingContextContact, MeetingRoom, Project, State, Tag, Task, TaskType
 
 
 class ActionForm(forms.ModelForm):
@@ -13,6 +13,30 @@ class ActionForm(forms.ModelForm):
 class ContextForm(forms.ModelForm):
     class Meta:
         model = Context
+        fields = '__all__'
+
+
+class MeetingForm(forms.ModelForm):
+    class Meta:
+        model = Meeting
+        fields = '__all__'
+
+
+class MeetingAcceptanceForm(forms.ModelForm):
+    class Meta:
+        model = MeetingAcceptance
+        fields = '__all__'
+
+
+class MeetingContextContactForm(forms.ModelForm):
+    class Meta:
+        model = MeetingContextContact
+        fields = '__all__'
+
+
+class MeetingRoomForm(forms.ModelForm):
+    class Meta:
+        model = MeetingRoom
         fields = '__all__'
 
 
