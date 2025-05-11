@@ -1,8 +1,9 @@
 from django.core.paginator import Paginator
+from django.http import HttpResponse
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render, redirect
 from .models import Action, Context, Meeting, MeetingAcceptance, MeetingContextContact, MeetingRoom, Project, State, Tag, Task, TaskType
-from .forms import ActionForm, ContextForm, MeetingForm, MeetingAcceptanceForm, MeetingContextContactForm, MeetingRoomForm, ProjectForm, StateForm, TagForm, TaskForm, TaskTypeForm
+from .forms import ActionForm, ContextForm, CycleForm, MeetingForm, MeetingAcceptanceForm, MeetingContextContactForm, MeetingRoomForm, ProjectForm, StateForm, TagForm, TaskForm, TaskTypeForm
 
 
 def action_list(request):
@@ -80,7 +81,31 @@ def context_create(request):
             return redirect('context_list')
     else:
         form = ContextForm()
-    return render(request, 'tasks/contexts/new_context.html', {'form': form})
+    return render(request, 'tasks/contexts/new_cycle.html', {'form': form})
+
+
+def cycle_create(request):
+    if request.method == "POST":
+        form = CycleForm(request.POST)
+        print("POST received")
+        if form.is_valid():
+            cycle = form.save()
+            print("Form is valid, cycle saved.")
+            print("Cycle model:", cycle.cycle_model)
+            print("Start:", cycle.start, "End:", cycle.end)
+
+            dates = cycle.get_repeating_dates()
+            print("Generated dates:", dates)
+            return HttpResponse(f"Dates: {dates}")
+        else:
+            print("Form is **NOT** valid")
+            print("Form errors:", form.errors.as_json())  # JSON is clearer for nested fields
+            return HttpResponse(f"Form errors: {form.errors.as_json()}")
+    else:
+        form = CycleForm()
+        print("GET request - showing empty form")
+
+    return render(request, 'tasks/cycles/new_cycle.html', {'form': form})
 
 
 def context_delete(request, context_id):
@@ -90,7 +115,7 @@ def context_delete(request, context_id):
         context.delete()
         return redirect('context_list')
 
-    return render(request, 'tasks/contexts/delete_context.html', {'context': context})
+    return render(request, 'tasks/contexts/delete_cycle.html', {'context': context})
 
 
 def context_update(request, context_id):

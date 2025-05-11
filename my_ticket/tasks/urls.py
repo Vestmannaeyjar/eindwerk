@@ -44,7 +44,9 @@ urlpatterns = [
     path('tasks/meetingacceptances/<int:meetingacceptance_id>/delete', views.meetingacceptance_delete, name='meetingacceptance_delete'),
     path('tasks/meetingacceptances/<int:meetingacceptance_id>/update', views.meetingacceptance_update, name='meetingacceptance_update'),
     path('tasks/meetingcontextcontacts/', views.meetingcontextcontact_list, name='meetingcontextcontact_list'),
-    path('tasks/meetingcontextcontacts//create', views.meetingcontextcontact_create, name='meetingcontextcontact_create'),
-    path('tasks/meetingcontextcontacts//<int:meetingcontextcontact_id>/delete', views.meetingcontextcontact_delete, name='meetingcontextcontact_delete'),
-    path('tasks/meetingcontextcontacts//<int:meetingcontextcontact_id>/update', views.meetingcontextcontact_update, name='meetingcontextcontact_update'),
+    path('tasks/meetingcontextcontacts/create', views.meetingcontextcontact_create, name='meetingcontextcontact_create'),
+    path('tasks/meetingcontextcontacts/<int:meetingcontextcontact_id>/delete', views.meetingcontextcontact_delete, name='meetingcontextcontact_delete'),
+    path('tasks/meetingcontextcontacts/<int:meetingcontextcontact_id>/update', views.meetingcontextcontact_update, name='meetingcontextcontact_update'),
+    path('tasks/cycles/create', views.cycle_create, name='cycle_create'),
+
 ]

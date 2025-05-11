@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import Action, Context, Meeting, MeetingAcceptance, MeetingContextContact, MeetingRoom, Project, State, Tag, Task, TaskType
+from .models import Action, Context, Cycle, Meeting, MeetingAcceptance, MeetingContextContact, MeetingRoom, Project, State, Tag, Task, TaskType
 
 
 class ActionForm(forms.ModelForm):
@@ -14,6 +14,49 @@ class ContextForm(forms.ModelForm):
     class Meta:
         model = Context
         fields = '__all__'
+
+
+class CycleForm(forms.ModelForm):
+    level = forms.ChoiceField(
+        choices=Cycle.LEVELS,
+        widget=forms.Select,
+        required=False,
+        label="Niveau"
+    )
+    one_level = forms.ChoiceField(
+        choices=Cycle.ONE_LEVEL,
+        widget=forms.Select,
+        required=False,
+        label="Eén niveau"
+    )
+    cycle_model = forms.ChoiceField(
+        choices=Cycle.MODELS,
+        widget=forms.Select,
+        required=False,
+        label="Model"
+    )
+    weekday = forms.ChoiceField(
+        choices=Cycle.WEEKDAYS,
+        widget=forms.Select,
+        required=False,
+        label="Weekdagen"
+    )
+    month = forms.ChoiceField(
+        choices=Cycle.MONTHS,
+        widget=forms.Select,
+        required=False,
+        label="Maanden"
+    )
+
+    class Meta:
+        model = Cycle
+        fields = '__all__'
+        widgets = {
+            'start': forms.DateInput(attrs={'type': 'date'}),
+            'end': forms.DateInput(attrs={'type': 'date'}),
+            'weekday': forms.CheckboxSelectMultiple,
+            'month': forms.CheckboxSelectMultiple,
+        }
 
 
 class MeetingForm(forms.ModelForm):

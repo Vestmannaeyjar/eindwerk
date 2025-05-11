@@ -86,7 +86,7 @@ def contextcontact_create(request, contact_id, address_id=None):
     else:
         form = ContextContactForm(initial=initial_data)
 
-    return render(request, 'contacts/new_context.html', {
+    return render(request, 'contacts/new_cycle.html', {
         'form': form,
         'contact': contact
     })
@@ -99,7 +99,7 @@ def contextcontact_delete(request, contextcontact_id):
         contextcontact.delete()
         return redirect('contact_detail', contact_id=contextcontact.contact.id)
 
-    return render(request, 'contacts/delete_context.html', {'contextcontact': contextcontact})
+    return render(request, 'contacts/delete_cycle.html', {'contextcontact': contextcontact})
 
 
 def contextcontact_update(request, contextcontact_id):
