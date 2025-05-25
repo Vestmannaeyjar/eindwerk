@@ -125,7 +125,7 @@ class Task(models.Model):
 
 
 class Cycle(models.Model):
-    source_task = models.ForeignKey(Task, on_delete=models.DO_NOTHING, blank=True, null=True)
+    source_task = models.ForeignKey(Task, on_delete=models.SET_NULL, blank=True, null=True)
     start = models.DateField()
     end = models.DateField()
     MODELS = [('each', 'elke'), ('every', 'om de'), ('dayofweek', 'dag(en) van de week'), ('monthsofyear', 'maand(en) van het jaar'), ('firstlastof', 'eerste/laatste van'), ('dayofmonth', 'dag van de maand')]
@@ -144,32 +144,87 @@ class Cycle(models.Model):
     weekday = models.CharField(max_length=50, choices=WEEKDAYS, blank=True, default='')
     month = models.CharField(max_length=50, choices=MONTHS, blank=True, default='')
 
-    def get_repeating_dates(self):
-        if not self.start or not self.end:
-            return []
-
-        if not self.cycle_model or self.cycle_model != 'each':
-            return []
-
-        if not self.one_level or not self.one_level:
-            return []
-
+    def each(self):
         step = self.one_level
-        current = self.start
+        date_to_add = self.start
         dates = []
 
-        while current <= self.end:
-            dates.append(current)
+        while date_to_add <= self.end:
+            dates.append(date_to_add)
 
             if step == 'day':
-                current += relativedelta(days=1)
+                date_to_add += relativedelta(days=1)
             elif step == 'week':
-                current += relativedelta(weeks=1)
+                date_to_add += relativedelta(weeks=1)
             elif step == 'month':
-                current += relativedelta(months=1)
+                date_to_add += relativedelta(months=1)
             elif step == 'year':
-                current += relativedelta(years=1)
+                date_to_add += relativedelta(years=1)
             else:
                 break
 
         return dates
+
+    def every(self):
+        step_size = self.number
+        level = self.level
+        date_to_add = self.start
+        dates = []
+
+        while date_to_add <= self.end:
+            dates.append(date_to_add)
+
+            if level == 'days':
+                date_to_add += relativedelta(days=int(step_size))
+            elif level == 'weeks':
+                date_to_add += relativedelta(weeks=int(step_size))
+            elif level == 'months':
+                date_to_add += relativedelta(months=int(step_size))
+            elif level == 'years':
+                date_to_add += relativedelta(years=int(step_size))
+            else:
+                break
+
+        return dates
+
+    def dayofweek(self):
+        date_to_add = self.start
+        startdate_weekday = date_to_add.weekday()
+
+        weekday_map = {
+            "Monday": 0,
+            "Tuesday": 1,
+            "Wednesday": 2,
+            "Thursday": 3,
+            "Friday": 4,
+            "Saturday": 5,
+            "Sunday": 6
+        }
+
+        def get_weekday_number(weekdayword):
+            return weekday_map.get(weekdayword, -1)  #
+
+        desired_weekday = get_weekday_number(self.weekday)
+        if not startdate_weekday == desired_weekday:
+            if desired_weekday < startdate_weekday:
+                days_to_add = 7 - (startdate_weekday - desired_weekday)
+            else:
+                days_to_add = abs(desired_weekday - startdate_weekday)
+            date_to_add += relativedelta(days=days_to_add)
+        dates = []
+
+        while date_to_add <= self.end:
+            dates.append(date_to_add)
+            date_to_add += relativedelta(weeks=1)
+
+        return dates
+
+    def get_repeating_dates(self):
+        if self.cycle_model == 'each':
+            return self.each()
+        elif self.cycle_model == 'every':
+            return self.every()
+        elif self.cycle_model == 'dayofweek':
+            return self.dayofweek()
+        else:
+            return []

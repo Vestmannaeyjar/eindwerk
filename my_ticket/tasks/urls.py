@@ -1,52 +1,20 @@
-from django.urls import path
+from rest_framework.routers import DefaultRouter
 from . import views
 
-urlpatterns = [
-    path('', views.task_list, name='task_list'),
-    path('tasks/', views.task_list, name='task_list'),
-    path('tasks/create', views.task_create, name='task_create'),
-    path('tasks/<int:task_id>/delete', views.task_delete, name='task_delete'),
-    path('tasks/<int:task_id>/update', views.task_update, name='task_update'),
-    path('tasks/actions/', views.action_list, name='action_list'),
-    path('tasks/actions/create', views.action_create, name='action_create'),
-    path('tasks/actions/<int:action_id>/delete', views.action_delete, name='action_delete'),
-    path('tasks/actions/<int:action_id>/update', views.action_update, name='action_update'),
-    path('tasks/contexts/', views.context_list, name='context_list'),
-    path('tasks/contexts/create', views.context_create, name='context_create'),
-    path('tasks/contexts/<int:context_id>/delete', views.context_delete, name='context_delete'),
-    path('tasks/contexts/<int:context_id>/update', views.context_update, name='context_update'),
-    path('tasks/projects/', views.project_list, name='project_list'),
-    path('tasks/projects/create', views.project_create, name='project_create'),
-    path('tasks/projects/<int:project_id>/delete', views.project_delete, name='project_delete'),
-    path('tasks/projects/<int:project_id>/update', views.project_update, name='project_update'),
-    path('tasks/states/', views.state_list, name='state_list'),
-    path('tasks/states/create', views.state_create, name='state_create'),
-    path('tasks/states/<int:state_id>/delete', views.state_delete, name='state_delete'),
-    path('tasks/states/<int:state_id>/update', views.state_update, name='state_update'),
-    path('tasks/tasktypes/', views.tasktype_list, name='tasktype_list'),
-    path('tasks/tasktypes/create', views.tasktype_create, name='tasktype_create'),
-    path('tasks/tasktypes/<int:tasktype_id>/delete', views.tasktype_delete, name='tasktype_delete'),
-    path('tasks/tasktypes/<int:tasktype_id>/update', views.tasktype_update, name='tasktype_update'),
-    path('tasks/tags/', views.tag_list, name='tag_list'),
-    path('tasks/tags/create', views.tag_create, name='tag_create'),
-    path('tasks/tags/<int:tag_id>/delete', views.tag_delete, name='tag_delete'),
-    path('tasks/tags/<int:tag_id>/update', views.tag_update, name='tag_update'),
-    path('tasks/meetings/', views.meeting_list, name='meeting_list'),
-    path('tasks/meetings/create', views.meeting_create, name='meeting_create'),
-    path('tasks/meetings/<int:meeting_id>/delete', views.meeting_delete, name='meeting_delete'),
-    path('tasks/meetings/<int:meeting_id>/update', views.meeting_update, name='meeting_update'),
-    path('tasks/meetingrooms/', views.meetingroom_list, name='meetingroom_list'),
-    path('tasks/meetingrooms/create', views.meetingroom_create, name='meetingroom_create'),
-    path('tasks/meetingrooms/<int:meetingroom_id>/delete', views.meetingroom_delete, name='meetingroom_delete'),
-    path('tasks/meetingrooms/<int:meetingroom_id>/update', views.meetingroom_update, name='meetingroom_update'),
-    path('tasks/meetingacceptances/', views.meetingacceptance_list, name='meetingacceptance_list'),
-    path('tasks/meetingacceptances/create', views.meetingacceptance_create, name='meetingacceptance_create'),
-    path('tasks/meetingacceptances/<int:meetingacceptance_id>/delete', views.meetingacceptance_delete, name='meetingacceptance_delete'),
-    path('tasks/meetingacceptances/<int:meetingacceptance_id>/update', views.meetingacceptance_update, name='meetingacceptance_update'),
-    path('tasks/meetingcontextcontacts/', views.meetingcontextcontact_list, name='meetingcontextcontact_list'),
-    path('tasks/meetingcontextcontacts/create', views.meetingcontextcontact_create, name='meetingcontextcontact_create'),
-    path('tasks/meetingcontextcontacts/<int:meetingcontextcontact_id>/delete', views.meetingcontextcontact_delete, name='meetingcontextcontact_delete'),
-    path('tasks/meetingcontextcontacts/<int:meetingcontextcontact_id>/update', views.meetingcontextcontact_update, name='meetingcontextcontact_update'),
-    path('tasks/cycles/create', views.cycle_create, name='cycle_create'),
+router = DefaultRouter()
+router.register(r'tasks/actions', views.ActionViewSet, basename='action')
+router.register(r'tasks/contexts', views.ContextViewSet, basename='context')
+router.register(r'tasks/states', views.StateViewSet, basename='state')
+router.register(r'tasks/tags', views.TagViewSet, basename='tag')
+router.register(r'tasks/tasktypes', views.TaskTypeViewSet, basename='tasktype')
 
-]
+router.register(r'tasks/meetingrooms', views.MeetingRoomViewSet, basename='meetingroom')
+router.register(r'tasks/meetings', views.MeetingViewSet, basename='meeting')
+router.register(r'tasks/meetingacceptances', views.MeetingAcceptanceViewSet, basename='meetingacceptance')
+router.register(r'tasks/meetingcontextcontacts', views.MeetingContextContactViewSet, basename='meetingcontextcontact')
+
+router.register(r'tasks/projects', views.ProjectViewSet, basename='project')
+router.register(r'tasks/tasks', views.TaskViewSet, basename='task')
+router.register(r'tasks/cycles', views.CycleViewSet, basename='cycle')
+
+urlpatterns = router.urls

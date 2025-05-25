@@ -32,5 +32,5 @@ class ContextContact(models.Model):
     parking_info = models.TextField()
 
     def __str__(self):
-        return f"{self.contact}"
+        return f"{self.contact} - {self.context}"
 

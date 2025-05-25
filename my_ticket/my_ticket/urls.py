@@ -19,8 +19,7 @@ from django.urls import include, path
 from contacts import views
 
 urlpatterns = [
-    path('', views.contact_list),
-    path('', include('tasks.urls')),
-    path('', include('contacts.urls')),
+    path('api/', include('tasks.urls')),
+    path('api/', include('contacts.urls')),
     path('admin/', admin.site.urls),
 ]
