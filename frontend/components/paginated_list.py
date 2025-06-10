@@ -155,12 +155,12 @@ def paginated_list_view(
     delete_dialog = ft.AlertDialog(modal=True, actions_alignment=ft.MainAxisAlignment.END)
 
     container.controls.extend([
-        add_button,
         search_input,
         total_results_text,
         items_column,
         page_status_text,
         ft.Row([prev_button, next_button], alignment=ft.MainAxisAlignment.CENTER),
+        add_button,
     ])
 
     load_items()

@@ -8,9 +8,11 @@ API_BASE_URL = "http://127.0.0.1:8000/api/contacts/"
 
 def render_contact_row(contact, open_edit_dialog, delete_contact):
     return ft.Row([
-        ft.Text(f"{contact['firstname']} – {contact['lastname']} – {contact['date_of_birth']}", expand=True),
         ft.IconButton(icon="edit", tooltip="Edit", on_click=lambda e: open_edit_dialog(contact)),
         ft.IconButton(icon="delete", tooltip="Delete", on_click=lambda e: delete_contact(contact["id"])),
+        ft.Text(f"{contact['firstname']}"),
+        ft.Text(f"{contact['lastname']}"),
+        ft.Text(f"{contact['date_of_birth']}"),
     ])
 
 
@@ -31,10 +33,14 @@ def build_contact_form(current_data, on_submit, on_cancel, page):
 
     def handle_submit(e):
         try:
+            dob_raw = date_input.value.strip()
+            # Convert from dd-mm-yyyy to yyyy-mm-dd
+            dob = datetime.strptime(dob_raw, "%d-%m-%Y").strftime("%Y-%m-%d")
+
             payload = {
                 "firstname": firstname_input.value.strip(),
                 "lastname": lastname_input.value.strip(),
-                "date_of_birth": date_input.value,
+                "date_of_birth": dob,
             }
             on_submit(payload)
         except Exception as err:
