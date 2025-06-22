@@ -1,19 +1,27 @@
 import flet as ft
 from components.paginated_list import paginated_list_view
+from components.dialogcontrol import dialog_controls
 from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/tasks/meetingacceptances/"
 
+p_color = ft.Colors.ORANGE_50
+ab_color = ft.Colors.ORANGE_500
+but_color = ft.Colors.ORANGE_800
+
 MEETINGACCEPTANCE_FIELDS = [
-    {"key": "name", "label": "Naam", "width": 100},
+    {"key": "name", "label": "Naam", "width": 300},
 ]
 
-def render_meetingacceptance_row(meetingacceptance, open_edit_dialog, delete_meetingacceptance):
-    return render_row(meetingacceptance, MEETINGACCEPTANCE_FIELDS, open_edit_dialog, delete_meetingacceptance)
+FIELD_LABELS = {field["key"]: field["label"] for field in MEETINGACCEPTANCE_FIELDS}
+
+
+def render_meetingacceptance_row(meetingacceptance, open_edit_dialog, delete_meetingacceptance, but_color):
+    return render_row(meetingacceptance, MEETINGACCEPTANCE_FIELDS, open_edit_dialog, delete_meetingacceptance, but_color)
 
 
 def build_meetingacceptance_form(current_data, on_submit, on_cancel, page):
-    name_input = ft.TextField(label="Name")
+    name_input = ft.TextField(label=FIELD_LABELS["name"])
 
     if current_data:
         name_input.value = current_data.get("name", "")
@@ -31,10 +39,7 @@ def build_meetingacceptance_form(current_data, on_submit, on_cancel, page):
 
     return ft.Column([
         name_input,
-        ft.Row([
-            ft.TextButton("Cancel", on_click=on_cancel),
-            ft.ElevatedButton("Save", on_click=handle_submit)
-        ], alignment=ft.MainAxisAlignment.END)
+        dialog_controls(on_cancel, handle_submit, but_color),
     ])
 
 
@@ -46,8 +51,12 @@ def meetingacceptances_view(page: ft.Page):
         title="Status deelnemers",
         item_description="deelnemerstatus",
         api_base_url=API_BASE_URL,
-        render_item_row=render_meetingacceptance_row,
+        render_item_row=lambda meetingacceptance, open_edit_dialog, delete_meetingacceptance: render_meetingacceptance_row(
+            meetingacceptance, open_edit_dialog, delete_meetingacceptance, but_color),
         build_edit_form=lambda *args: build_meetingacceptance_form(*args, page=page),
         build_payload=None,
-        render_header=render_task_header(MEETINGACCEPTANCE_FIELDS)
+        render_header=render_task_header(MEETINGACCEPTANCE_FIELDS),
+        p_color=p_color,
+        ab_color=ab_color,
+        but_color=but_color,
     )

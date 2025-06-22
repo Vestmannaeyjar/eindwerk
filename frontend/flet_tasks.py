@@ -3,11 +3,16 @@ import requests
 from datetime import datetime
 from components.datetime_functions import parse_iso_datetime
 from components.paginated_list import paginated_list_view
+from components.dialogcontrol import dialog_controls
 from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/tasks/tasks/"
 PROJECTS_URL = "http://127.0.0.1:8000/api/tasks/projects/"
 CONTEXTCONTACTS_URL = "http://127.0.0.1:8000/api/contextcontacts/"
+
+p_color = ft.Colors.BLUE_50
+ab_color = ft.Colors.BLUE_500
+but_color = ft.Colors.BLUE_900
 
 TASK_FIELDS = [
     {"key": "deadline", "label": "Einddatum", "width": 200},
@@ -19,8 +24,8 @@ TASK_FIELDS = [
 FIELD_LABELS = {field["key"]: field["label"] for field in TASK_FIELDS}
 
 
-def render_task_row(task, open_edit_dialog, delete_task):
-    return render_row(task, TASK_FIELDS, open_edit_dialog, delete_task)
+def render_task_row(task, open_edit_dialog, delete_task, but_color):
+    return render_row(task, TASK_FIELDS, open_edit_dialog, delete_task, but_color)
 
 
 def build_task_form(current_data, on_submit, on_cancel, page):
@@ -172,10 +177,7 @@ def build_task_form(current_data, on_submit, on_cancel, page):
         project_input,
         assignment_input,
         error_text,
-        ft.Row([  # Actions row
-            ft.TextButton("Annuleren", on_click=on_cancel),
-            ft.TextButton("Opslaan", on_click=handle_submit),
-        ], alignment=ft.MainAxisAlignment.END),
+        dialog_controls(on_cancel, handle_submit, but_color),
     ], width=400, spacing=10)
 
 
@@ -192,8 +194,12 @@ def tasks_view(page: ft.Page):
         title="Taken",
         item_description="taak",
         api_base_url=API_BASE_URL,
-        render_item_row=render_task_row,
+        render_item_row=lambda task, open_edit_dialog, delete_task: render_task_row(
+            task, open_edit_dialog, delete_task, but_color),
         build_edit_form=lambda *args: build_task_form(*args, page=page),
         build_payload=None,  # Not used; logic in form
         render_header=render_task_header(TASK_FIELDS),
+        p_color=p_color,
+        ab_color=ab_color,
+        but_color=but_color,
     )

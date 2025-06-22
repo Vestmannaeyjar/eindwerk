@@ -1,21 +1,29 @@
 import flet as ft
 from components.paginated_list import paginated_list_view
+from components.dialogcontrol import dialog_controls
 from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/tasks/meetingrooms/"
+
+p_color = ft.Colors.PURPLE_50
+ab_color = ft.Colors.PURPLE_500
+but_color = ft.Colors.PURPLE_800
 
 MEETINGROOM_FIELDS = [
     {"key": "name", "label": "Naam", "width": 400},
     {"key": "capacity", "label": "Capaciteit", "width": 100},
 ]
 
-def render_meetingroom_row(meetingroom, open_edit_dialog, delete_meetingroom):
-    return render_row(meetingroom, MEETINGROOM_FIELDS, open_edit_dialog, delete_meetingroom)
+FIELD_LABELS = {field["key"]: field["label"] for field in MEETINGROOM_FIELDS}
+
+
+def render_meetingroom_row(meetingroom, open_edit_dialog, delete_meetingroom, but_color):
+    return render_row(meetingroom, MEETINGROOM_FIELDS, open_edit_dialog, delete_meetingroom, but_color)
 
 
 def build_meetingroom_form(current_data, on_submit, on_cancel, page):
-    name_input = ft.TextField(label="Name")
-    capacity_input = ft.TextField(label="Capacity")
+    name_input = ft.TextField(label=FIELD_LABELS["name"])
+    capacity_input = ft.TextField(label=FIELD_LABELS["capacity"])
 
     if current_data:
         name_input.value = current_data.get("name", "")
@@ -36,10 +44,7 @@ def build_meetingroom_form(current_data, on_submit, on_cancel, page):
     return ft.Column([
         name_input,
         capacity_input,
-        ft.Row([
-            ft.TextButton("Cancel", on_click=on_cancel),
-            ft.ElevatedButton("Save", on_click=handle_submit)
-        ], alignment=ft.MainAxisAlignment.END)
+        dialog_controls(on_cancel, handle_submit, but_color),
     ])
 
 
@@ -51,8 +56,12 @@ def meetingrooms_view(page: ft.Page):
         title="Vergaderzalen",
         item_description="vergaderzaal",
         api_base_url=API_BASE_URL,
-        render_item_row=render_meetingroom_row,
+        render_item_row=lambda meetingroom, open_edit_dialog, delete_meetingroom: render_meetingroom_row(
+            meetingroom, open_edit_dialog, delete_meetingroom, but_color),
         build_edit_form=lambda *args: build_meetingroom_form(*args, page=page),
         build_payload=None,
-        render_header=render_task_header(MEETINGROOM_FIELDS)
+        render_header=render_task_header(MEETINGROOM_FIELDS),
+        p_color=p_color,
+        ab_color=ab_color,
+        but_color=but_color,
     )

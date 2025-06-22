@@ -1,8 +1,9 @@
 import flet as ft
 from datetime import datetime
+from components.datetime_functions import parse_iso_datetime
 
 
-def render_row(data, fields, edit_cb, delete_cb):
+def render_row(data, fields, edit_cb, delete_cb, but_color):
     def get_display_value(field, data):
         """Get the display value for a field."""
         key = field["key"]
@@ -17,8 +18,8 @@ def render_row(data, fields, edit_cb, delete_cb):
         if field.get("type") == "datetime" and value:
             try:
                 # Parse ISO datetime string
-                dt = datetime.fromisoformat(str(value).replace('Z', '+00:00'))
-                return dt.strftime("%d-%m-%Y %H:%M")
+                dt = parse_iso_datetime(value)
+                return dt
             except (ValueError, AttributeError):
                 return str(value)  # Return original if parsing fails
 
@@ -29,8 +30,8 @@ def render_row(data, fields, edit_cb, delete_cb):
             ft.Container(content=ft.Text(get_display_value(f, data)), width=f["width"])
             for f in fields
         ],
-        ft.IconButton(icon="edit", tooltip="Edit", on_click=lambda e: edit_cb(data)),
-        ft.IconButton(icon="delete", tooltip="Delete", on_click=lambda e: delete_cb(data["id"])),
+        ft.IconButton(icon="edit", tooltip="Aanpassen", on_click=lambda e: edit_cb(data), icon_color=but_color),
+        ft.IconButton(icon="delete", tooltip="Verwijderen", on_click=lambda e: delete_cb(data["id"]), icon_color=but_color),
     ])
 
 

@@ -1,8 +1,13 @@
 import flet as ft
 from components.paginated_list import paginated_list_view
+from components.dialogcontrol import dialog_controls
 from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/addresses/"
+
+p_color = ft.Colors.GREEN_50
+ab_color = ft.Colors.GREEN_500
+but_color = ft.Colors.GREEN_800
 
 ADDRESS_FIELDS = [
     {"key": "name", "label": "Adresnaam", "width": 100},
@@ -12,17 +17,19 @@ ADDRESS_FIELDS = [
     {"key": "country", "label": "Land", "width": 100},
 ]
 
+FIELD_LABELS = {field["key"]: field["label"] for field in ADDRESS_FIELDS}
 
-def render_address_row(address, open_edit_dialog, delete_address):
-    return render_row(address, ADDRESS_FIELDS, open_edit_dialog, delete_address)
+
+def render_address_row(address, open_edit_dialog, delete_address, but_color):
+    return render_row(address, ADDRESS_FIELDS, open_edit_dialog, delete_address, but_color)
 
 
 def build_address_form(current_data, on_submit, on_cancel, page):
-    name_input = ft.TextField(label="Name")
-    street_input = ft.TextField(label="Street")
-    zip_input = ft.TextField(label="Zip")
-    city_input = ft.TextField(label="City")
-    country_input = ft.TextField(label="Country")
+    name_input = ft.TextField(label=FIELD_LABELS["name"])
+    street_input = ft.TextField(label=FIELD_LABELS["street"])
+    zip_input = ft.TextField(label=FIELD_LABELS["zip"])
+    city_input = ft.TextField(label=FIELD_LABELS["city"])
+    country_input = ft.TextField(label=FIELD_LABELS["country"])
 
     if current_data:
         name_input.value = current_data.get("name", "")
@@ -52,10 +59,7 @@ def build_address_form(current_data, on_submit, on_cancel, page):
         zip_input,
         city_input,
         country_input,
-        ft.Row([
-            ft.TextButton("Cancel", on_click=on_cancel),
-            ft.ElevatedButton("Save", on_click=handle_submit)
-        ], alignment=ft.MainAxisAlignment.END)
+        dialog_controls(on_cancel, handle_submit, but_color),
     ])
 
 
@@ -67,8 +71,12 @@ def addresses_view(page: ft.Page):
         title="Adressen",
         item_description="adres",
         api_base_url=API_BASE_URL,
-        render_item_row=render_address_row,
+        render_item_row=lambda address, open_edit_dialog, delete_address: render_address_row(
+            address, open_edit_dialog, delete_address, but_color),
         build_edit_form=lambda *args: build_address_form(*args, page=page),
         build_payload=None,
-        render_header=render_task_header(ADDRESS_FIELDS)
+        render_header=render_task_header(ADDRESS_FIELDS),
+        p_color=p_color,
+        ab_color=ab_color,
+        but_color=but_color,
     )

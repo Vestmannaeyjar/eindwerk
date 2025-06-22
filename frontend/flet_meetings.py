@@ -2,24 +2,29 @@ import flet as ft
 from datetime import datetime
 import requests
 from components.paginated_list import paginated_list_view
+from components.dialogcontrol import dialog_controls
 from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/tasks/meetings/"
 ROOMS_URL = "http://127.0.0.1:8000/api/tasks/meetingrooms/"
 
+p_color = ft.Colors.YELLOW_50
+ab_color = ft.Colors.YELLOW_500
+but_color = ft.Colors.YELLOW_800
+
 MEETING_FIELDS = [
-    {"key": "name", "label": "Naam", "width": 100},
-    {"key": "date", "label": "Datum (dd-mm-jjjj)", "width": 100},
-    {"key": "contacts", "label": "Deelnemers", "width": 100},
-    {"key": "meetingroom", "label": "Vergaderzaal", "width": 100},
-    {"key": "digital_space", "label": "Digitale ruimte (URL)", "width": 100},
+    {"key": "date", "label": "Datum (dd-mm-jjjj)", "width": 200},
+    {"key": "name", "label": "Naam", "width": 300},
+    {"key": "contacts", "label": "Deelnemers", "width": 300},
+    {"key": "meetingroom", "label": "Vergaderzaal", "width": 200, "display_key": "meetingroom_name"},
+    {"key": "digital_space", "label": "Digitale ruimte (URL)", "width": 500},
 ]
 
 FIELD_LABELS = {field["key"]: field["label"] for field in MEETING_FIELDS}
 
 
-def render_meeting_row(meeting, open_edit_dialog, delete_meeting):
-    return render_row(meeting, MEETING_FIELDS, open_edit_dialog, delete_meeting)
+def render_meeting_row(meeting, open_edit_dialog, delete_meeting, but_color):
+    return render_row(meeting, MEETING_FIELDS, open_edit_dialog, delete_meeting, but_color)
 
 
 def build_meeting_form(current_data, on_submit, on_cancel, page):
@@ -75,10 +80,7 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
         date_input,
         digital_space_input,
         room_dropdown,
-        ft.Row([
-            ft.TextButton("Cancel", on_click=on_cancel),
-            ft.ElevatedButton("Save", on_click=handle_submit)
-        ], alignment=ft.MainAxisAlignment.END)
+        dialog_controls(on_cancel, handle_submit, but_color),
     ])
 
 
@@ -90,8 +92,12 @@ def meetings_view(page: ft.Page):
         title="Vergaderingen",
         item_description="vergadering",
         api_base_url=API_BASE_URL,
-        render_item_row=render_meeting_row,
+        render_item_row=lambda meeting, open_edit_dialog, delete_meeting: render_meeting_row(
+            meeting, open_edit_dialog, delete_meeting, but_color),
         build_edit_form=lambda *args: build_meeting_form(*args, page=page),
         build_payload=None,
         render_header=render_task_header(MEETING_FIELDS),
+        p_color=p_color,
+        ab_color=ab_color,
+        but_color=but_color,
     )

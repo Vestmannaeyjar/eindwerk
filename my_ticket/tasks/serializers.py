@@ -61,6 +61,8 @@ class MeetingContextContactSerializer(serializers.ModelSerializer):
 
 
 class MeetingSerializer(serializers.ModelSerializer):
+    meetingroom_name = serializers.CharField(source='meetingroom.name', read_only=True)
+
     class Meta:
         model = Meeting
         fields = '__all__'

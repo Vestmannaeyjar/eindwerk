@@ -12,12 +12,17 @@ def paginated_list_view(
     render_item_row,
     build_edit_form,
     build_payload,
-    render_header=None
+    render_header=None,
+    p_color=None,
+    ab_color=None,
+    but_color=None,
 ):
     container = ft.Column()
     items_column = ft.Column()
     page.scroll = "auto"
     page.title = f"My ticket app / {title}"
+    page.appbar.bgcolor = ab_color
+    page.bgcolor = p_color
 
     current_item_id = None
     current_data = {}
@@ -107,8 +112,8 @@ def paginated_list_view(
         delete_dialog.title = ft.Text("Bevestig verwijderen")
         delete_dialog.content = ft.Text("Ben je zeker?")
         delete_dialog.actions = [
-            ft.TextButton("Annuleer", on_click=lambda e: close_dialog()),
-            ft.ElevatedButton("Verwijder", on_click=confirm_delete),
+            ft.ElevatedButton("Annuleer", on_click=lambda e: close_dialog(), color=ft.Colors.BLUE_500, icon=ft.Icons.ARROW_BACK),
+            ft.ElevatedButton("Verwijder", on_click=confirm_delete, color=ft.Colors.RED_500, icon=ft.Icons.DELETE_FOREVER),
         ]
         page.dialog = delete_dialog
         page.open(delete_dialog)
@@ -162,11 +167,11 @@ def paginated_list_view(
             page.snack_bar.open = True
         page.update()
 
-    prev_button = ft.ElevatedButton("Vorige", on_click=lambda e: load_items(prev_page_url), disabled=True)
-    next_button = ft.ElevatedButton("Volgende", on_click=lambda e: load_items(next_page_url), disabled=True)
+    prev_button = ft.ElevatedButton("Vorige", on_click=lambda e: load_items(prev_page_url), disabled=True, color=but_color)
+    next_button = ft.ElevatedButton("Volgende", on_click=lambda e: load_items(next_page_url), disabled=True, color=but_color)
 
     search_input.on_change = on_search
-    add_button = ft.ElevatedButton(f"Voeg een {item_description} toe", on_click=lambda e: open_edit_dialog(None))
+    add_button = ft.ElevatedButton(f"Voeg een {item_description} toe", on_click=lambda e: open_edit_dialog(None), icon=ft.Icons.ADD_OUTLINED, color=but_color)
 
     edit_dialog = ft.AlertDialog(modal=True, title=ft.Text(f"Bewerk {item_description}"), actions_alignment=ft.MainAxisAlignment.END)
     delete_dialog = ft.AlertDialog(modal=True, actions_alignment=ft.MainAxisAlignment.END)

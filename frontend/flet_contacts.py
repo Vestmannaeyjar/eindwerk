@@ -1,9 +1,15 @@
 import flet as ft
 from datetime import datetime
 from components.paginated_list import paginated_list_view
+from components.dialogcontrol import dialog_controls
+
 from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/contacts/"
+
+p_color = ft.Colors.RED_50
+ab_color = ft.Colors.RED_500
+but_color = ft.Colors.RED_800
 
 CONTACT_FIELDS = [
     {"key": "firstname", "label": "Voornaam", "width": 200},
@@ -11,9 +17,11 @@ CONTACT_FIELDS = [
     {"key": "date_of_birth", "label": "Geboortedatum", "width": 200},
 ]
 
+FIELD_LABELS = {field["key"]: field["label"] for field in CONTACT_FIELDS}
 
-def render_contact_row(contact, open_edit_dialog, delete_contact):
-    return render_row(contact, CONTACT_FIELDS, open_edit_dialog, delete_contact)
+
+def render_contact_row(contact, open_edit_dialog, delete_contact, but_color):
+    return render_row(contact, CONTACT_FIELDS, open_edit_dialog, delete_contact, but_color)
 
 
 def build_contact_form(current_data, on_submit, on_cancel, page):
@@ -46,10 +54,7 @@ def build_contact_form(current_data, on_submit, on_cancel, page):
 
     return ft.Column([
         *inputs.values(),
-        ft.Row([
-            ft.TextButton("Cancel", on_click=on_cancel),
-            ft.ElevatedButton("Save", on_click=handle_submit)
-        ], alignment=ft.MainAxisAlignment.END)
+        dialog_controls(on_cancel, handle_submit, but_color),
     ])
 
 
@@ -61,8 +66,12 @@ def contacts_view(page: ft.Page):
         title="Personen",
         item_description="persoon",
         api_base_url=API_BASE_URL,
-        render_item_row=render_contact_row,
+        render_item_row=lambda contact, open_edit_dialog, delete_contact: render_contact_row(
+            contact, open_edit_dialog, delete_contact, but_color),
         build_edit_form=lambda *args: build_contact_form(*args, page=page),
         build_payload=None,
         render_header=render_task_header(CONTACT_FIELDS),
+        p_color=p_color,
+        ab_color=ab_color,
+        but_color=but_color,
     )
