@@ -4,12 +4,17 @@ from flet_contacts import contacts_view
 from flet_meetings import meetings_view
 from flet_meetingrooms import meetingrooms_view
 from flet_meetingacceptances import meetingacceptances_view
+from flet_projects import projects_view
 from flet_tasks import tasks_view
 
 
 def main(page: ft.Page):
     page.title = "My Ticket App"
     page.bgcolor = ft.Colors.BLUE_50
+    page.window.width = 1600
+    page.window.height = 700
+    page.update()
+
 
     content = ft.Container(
         expand=True,
@@ -28,7 +33,7 @@ def main(page: ft.Page):
         tasks_view,  # Tasktypes
         contacts_view,
         addresses_view,
-        tasks_view,  # Projects
+        projects_view,
         tasks_view,  # Cycles
     ]
 

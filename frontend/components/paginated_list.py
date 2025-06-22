@@ -1,7 +1,208 @@
 import flet as ft
 import requests
 from urllib.parse import urlencode, urlparse, urlunparse, parse_qs
+
 import math
+from frontend.components.key import GOOGLE_API_KEY
+
+
+def search_google_places(query):
+    """Search for places using Google Places API Text Search"""
+    if not query or len(query) < 3:
+        return []
+
+    try:
+        url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
+        params = {
+            'query': query,
+            'key': GOOGLE_API_KEY,
+            'fields': 'place_id,name,formatted_address,geometry'
+        }
+
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+        return data.get('results', [])[:10]  # Limit to 10 results
+
+    except Exception as e:
+        print(f"Error searching Google Places: {e}")
+        return []
+
+
+def get_place_details(place_id):
+    """Get detailed information about a place using Place Details API"""
+    try:
+        url = "https://maps.googleapis.com/maps/api/place/details/json"
+        params = {
+            'place_id': place_id,
+            'key': GOOGLE_API_KEY,
+            'fields': 'name,formatted_address,address_components,geometry,formatted_phone_number,website'
+        }
+
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+        return data.get('result', {})
+
+    except Exception as e:
+        print(f"Error getting place details: {e}")
+        return {}
+
+
+def parse_address_components(address_components):
+    """Parse Google Places address components into structured data"""
+    address_data = {
+        'street_name': '',
+        'street_number': '',
+        'city': '',
+        'postal_code': '',
+        'country': '',
+        'province': ''
+    }
+
+    for component in address_components:
+        types = component.get('types', [])
+        long_name = component.get('long_name', '')
+
+        if 'street_number' in types:
+            address_data['street_number'] = long_name
+        elif 'route' in types:
+            address_data['street_name'] = long_name
+        elif 'locality' in types:
+            address_data['city'] = long_name
+        elif 'postal_code' in types:
+            address_data['postal_code'] = long_name
+        elif 'country' in types:
+            address_data['country'] = long_name
+        elif 'administrative_area_level_1' in types:
+            address_data['province'] = long_name
+
+    return address_data
+
+
+def create_google_search_dialog(page, on_address_selected, on_cancel, but_color):
+    """Create a dialog for searching Google Places"""
+    search_input = ft.TextField(
+        label="Zoek adres via Google",
+        hint_text="Typ een adres, bedrijfsnaam of plaats...",
+        autofocus=True,
+        expand=True
+    )
+
+    search_results = ft.Column(
+        controls=[],
+        scroll=ft.ScrollMode.AUTO,
+        height=300
+    )
+
+    search_progress = ft.ProgressRing(visible=False)
+    search_error = ft.Text(value="", visible=False, color=ft.Colors.RED)
+
+    def perform_search(e=None):
+        query = search_input.value.strip()
+        if not query or len(query) < 3:
+            search_error.value = "Voer minimaal 3 karakters in om te zoeken"
+            search_error.visible = True
+            search_results.controls.clear()
+            page.update()
+            return
+
+        search_error.visible = False
+        search_progress.visible = True
+        search_results.controls.clear()
+        page.update()
+
+        # Perform the search
+        places = search_google_places(query)
+        search_progress.visible = False
+
+        if not places:
+            search_error.value = "Geen resultaten gevonden"
+            search_error.visible = True
+        else:
+            # Display search results
+            for place in places:
+                place_card = ft.Card(
+                    content=ft.Container(
+                        content=ft.Column([
+                            ft.Text(place.get('name', ''), weight=ft.FontWeight.BOLD),
+                            ft.Text(place.get('formatted_address', ''), size=12, color=ft.Colors.GREY_700),
+                        ]),
+                        padding=10,
+                        on_click=lambda e, pid=place.get('place_id'): select_place(pid)
+                    ),
+                    elevation=2
+                )
+                search_results.controls.append(place_card)
+
+        page.update()
+
+    def select_place(place_id):
+        """Handle place selection and get detailed information"""
+        search_progress.visible = True
+        page.update()
+
+        place_details = get_place_details(place_id)
+        search_progress.visible = False
+
+        if place_details:
+            # Parse the address components
+            address_components = place_details.get('address_components', [])
+            parsed_address = parse_address_components(address_components)
+
+            # Create address data object
+            address_data = {
+                'name': place_details.get('name', ''),
+                'street': f"{parsed_address['street_name']} {parsed_address['street_number']}".strip(),
+                'city': parsed_address['city'],
+                'zip': parsed_address['postal_code'],
+                'country': parsed_address['country'],
+                'province': parsed_address['province'],
+                'phone': place_details.get('formatted_phone_number', ''),
+                'website': place_details.get('website', ''),
+                'formatted_address': place_details.get('formatted_address', ''),
+                'latitude': place_details.get('geometry', {}).get('location', {}).get('lat'),
+                'longitude': place_details.get('geometry', {}).get('location', {}).get('lng'),
+            }
+
+            # Close the search dialog and pass the data
+            page.dialog.open = False
+            page.update()
+            on_address_selected(address_data)
+        else:
+            search_error.value = "Fout bij ophalen adresgegevens"
+            search_error.visible = True
+            page.update()
+
+    # Set up search on enter key and search button
+    search_input.on_submit = perform_search
+
+    search_button = ft.ElevatedButton(
+        "Zoeken",
+        icon=ft.Icons.SEARCH,
+        on_click=perform_search,
+        color=but_color
+    )
+
+    dialog_content = ft.Column([
+        ft.Row([search_input, search_button]),
+        search_error,
+        search_progress,
+        ft.Divider(),
+        ft.Text("Zoekresultaten:", weight=ft.FontWeight.BOLD),
+        search_results,
+        ft.Row([
+            ft.TextButton("Annuleren", on_click=lambda e: on_cancel()),
+        ], alignment=ft.MainAxisAlignment.END)
+    ], height=500, width=600)
+
+    return ft.AlertDialog(
+        title=ft.Text("Zoek adres via Google"),
+        content=dialog_content,
+        modal=True
+    )
 
 
 def paginated_list_view(
@@ -139,6 +340,56 @@ def paginated_list_view(
         page.open(edit_dialog)
         page.update()
 
+    def open_google_edit_dialog(item=None):
+        nonlocal current_item_id, current_data, item_description
+        current_item_id = item["id"] if item else None
+        current_data = item or {}
+
+        # Check if we should show Google search for new addresses
+        if not current_data and item_description == "adres":
+            # Show Google search dialog first
+            def on_address_selected(google_address_data):
+                # Merge Google data with current_data and open the regular edit dialog
+                current_data.update(google_address_data)
+                show_regular_edit_dialog()
+
+            def on_search_cancel():
+                # Close dialog and optionally show regular form
+                page.dialog.open = False
+                page.update()
+                # Uncomment next line if you want to show regular form after canceling Google search
+                # show_regular_edit_dialog()
+
+            def show_regular_edit_dialog():
+                edit_dialog.content = ft.Container(
+                    content=build_edit_form(current_data, submit_edit, cancel_edit),
+                    bgcolor=ft.Colors.WHITE,
+                )
+                edit_dialog.title = f"Maak nieuwe {item_description}"
+                page.dialog = edit_dialog
+                page.open(edit_dialog)
+                page.update()
+
+            # Show Google search dialog
+            google_dialog = create_google_search_dialog(page, on_address_selected, on_search_cancel, but_color)
+            page.dialog = google_dialog
+            page.open(google_dialog)
+            page.update()
+
+        else:
+            # Regular edit dialog for existing items or non-address items
+            edit_dialog.content = ft.Container(
+                content=build_edit_form(current_data, submit_edit, cancel_edit),
+                bgcolor=ft.Colors.WHITE,
+            )
+            if not current_data:
+                edit_dialog.title = f"Maak nieuwe {item_description}"
+            else:
+                edit_dialog.title = f"Bewerk {item_description}"
+            page.dialog = edit_dialog
+            page.open(edit_dialog)
+            page.update()
+
     def cancel_edit(e):
         page.close(edit_dialog)
         page.update()
@@ -172,6 +423,7 @@ def paginated_list_view(
 
     search_input.on_change = on_search
     add_button = ft.ElevatedButton(f"Voeg een {item_description} toe", on_click=lambda e: open_edit_dialog(None), icon=ft.Icons.ADD_OUTLINED, color=but_color)
+    add_google_button = ft.ElevatedButton(f"Voeg via Google een {item_description} toe", on_click=lambda e: open_google_edit_dialog(None), icon=ft.Icons.ADD_LOCATION_ALT_OUTLINED, color=but_color, visible=(item_description == "adres"))
 
     edit_dialog = ft.AlertDialog(modal=True, title=ft.Text(f"Bewerk {item_description}"), actions_alignment=ft.MainAxisAlignment.END)
     delete_dialog = ft.AlertDialog(modal=True, actions_alignment=ft.MainAxisAlignment.END)
@@ -179,6 +431,7 @@ def paginated_list_view(
     top_controls = ft.Row(
         [
             add_button,
+            add_google_button,
             search_input,
             prev_button,
             next_button,

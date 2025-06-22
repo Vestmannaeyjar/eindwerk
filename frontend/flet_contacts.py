@@ -14,7 +14,7 @@ but_color = ft.Colors.RED_800
 CONTACT_FIELDS = [
     {"key": "firstname", "label": "Voornaam", "width": 200},
     {"key": "lastname", "label": "Familienaam", "width": 200},
-    {"key": "date_of_birth", "label": "Geboortedatum", "width": 200},
+    {"key": "date_of_birth", "label": "Geboortedatum", "width": 200, "type": "date"},
 ]
 
 FIELD_LABELS = {field["key"]: field["label"] for field in CONTACT_FIELDS}

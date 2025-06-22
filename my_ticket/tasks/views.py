@@ -57,7 +57,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
     queryset = Meeting.objects.all()
     serializer_class = MeetingSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['name', 'date', 'contacts', 'meetingroom', 'digital_space']
+    search_fields = ['name', 'startdate', 'enddate', 'contacts', 'meetingroom', 'digital_space']
 
 
 class MeetingAcceptanceViewSet(viewsets.ModelViewSet):

@@ -1,5 +1,5 @@
-from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from datetime import datetime
 from contacts.models import Address, ContextContact
 from dateutil.relativedelta import relativedelta
 
@@ -49,13 +49,17 @@ class MeetingRoom(models.Model):
 
 class Meeting(models.Model):
     name = models.CharField()
-    date = models.DateTimeField()
-    contacts = models.ManyToManyField(ContextContact, through='MeetingContextContact')
+    startdate = models.DateTimeField(blank=True, null=True)
+    enddate = models.DateTimeField(blank=True, null=True)
+    contacts = models.ManyToManyField(ContextContact, through='MeetingContextContact', blank=True)
     meetingroom = models.ForeignKey(MeetingRoom, on_delete=models.CASCADE)
     digital_space = models.URLField()
 
     def __str__(self):
-        return f"{self.date} {self.name} {self.meetingroom}"
+        return f"{self.startdate} {self.name} {self.meetingroom}"
+
+    class Meta:
+        ordering = ['-startdate']
 
 
 class MeetingAcceptance(models.Model):
@@ -68,15 +72,15 @@ class MeetingAcceptance(models.Model):
 class MeetingContextContact(models.Model):
     contextcontact = models.ForeignKey(ContextContact, on_delete=models.CASCADE)
     meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE)
-    status = models.ForeignKey(MeetingAcceptance, on_delete=models.CASCADE)
+    status = models.ForeignKey(MeetingAcceptance, on_delete=models.CASCADE, blank=True, null=True)
 
 
 class Project(models.Model):
     name = models.CharField(max_length=255)
-    startdate = models.DateField()
-    enddate = models.DateField()
-    total_projected_time_internal = models.TimeField(default="00:00.000")
-    total_projected_time_external = models.TimeField(default="00:00.000")
+    startdate = models.DateField(null=True)
+    enddate = models.DateField(null=True)
+    total_projected_time_internal = models.TimeField(default="00:00.000", null=True)
+    total_projected_time_external = models.TimeField(default="00:00.000", null=True)
 
     def __str__(self):
         return f"{self.name} {self.startdate} - {self.enddate}"

@@ -17,9 +17,7 @@ def render_row(data, fields, edit_cb, delete_cb, but_color):
         # Format datetime fields
         if field.get("type") == "datetime" and value:
             try:
-                # Parse ISO datetime string
-                dt = parse_iso_datetime(value)
-                return dt
+                return parse_iso_datetime(value)
             except (ValueError, AttributeError):
                 return str(value)  # Return original if parsing fails
 

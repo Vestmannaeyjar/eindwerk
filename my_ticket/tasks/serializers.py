@@ -62,10 +62,73 @@ class MeetingContextContactSerializer(serializers.ModelSerializer):
 
 class MeetingSerializer(serializers.ModelSerializer):
     meetingroom_name = serializers.CharField(source='meetingroom.name', read_only=True)
+    contacts = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=ContextContact.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Meeting
-        fields = '__all__'
+        fields = ['id', 'name', 'startdate', 'enddate', 'contacts', 'digital_space', 'meetingroom', 'meetingroom_name']
+
+    def create(self, validated_data):
+        print(f"Validated data in create: {validated_data}")
+
+        contacts_data = validated_data.pop('contacts', [])
+        print(f"Contacts data: {contacts_data}")
+
+        # Create the meeting without contacts first
+        meeting = Meeting.objects.create(**validated_data)
+        print(f"Created meeting: {meeting.id}")
+
+        # Handle the through table manually
+        if contacts_data:
+            for contact in contacts_data:
+                MeetingContextContact.objects.create(
+                    meeting=meeting,
+                    contextcontact=contact  # Use the correct field name from your through model
+                )
+            print(f"Created {len(contacts_data)} contact relationships")
+
+        return meeting
+
+    def update(self, instance, validated_data):
+        print(f"Validated data in update: {validated_data}")
+
+        contacts_data = validated_data.pop('contacts', None)
+        print(f"Contacts data for update: {contacts_data}")
+
+        # Update regular fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Handle contacts update through the through table
+        if contacts_data is not None:
+            # Delete existing relationships
+            MeetingContextContact.objects.filter(meeting=instance).delete()
+
+            # Create new relationships
+            for contact in contacts_data:
+                MeetingContextContact.objects.create(
+                    meeting=instance,
+                    contextcontact=contact  # Use the correct field name
+                )
+            print(f"Updated with {len(contacts_data)} contact relationships")
+
+        return instance
+
+    def to_representation(self, instance):
+        """Customize the output to include contact details if needed"""
+        representation = super().to_representation(instance)
+
+        # Get contacts through the through table
+        meeting_contacts = MeetingContextContact.objects.filter(meeting=instance)
+        contact_ids = [mc.contextcontact.id for mc in meeting_contacts]
+        representation['contacts'] = contact_ids
+
+        return representation
 
 
 class AddressSerializer(serializers.ModelSerializer):

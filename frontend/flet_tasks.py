@@ -15,7 +15,7 @@ ab_color = ft.Colors.BLUE_500
 but_color = ft.Colors.BLUE_900
 
 TASK_FIELDS = [
-    {"key": "deadline", "label": "Einddatum", "width": 200},
+    {"key": "deadline", "label": "Einddatum", "width": 200, "type": "datetime"},
     {"key": "project", "label": "Project", "width": 150, "display_key": "project_name"},
     {"key": "subject", "label": "Omschrijving", "width": 300},
     {"key": "assignment", "label": "Verantwoordelijke", "width": 200, "display_key": "contextcontact_name"},
