@@ -32,3 +32,25 @@ def render_row(data, fields, edit_cb, delete_cb):
         ft.IconButton(icon="edit", tooltip="Edit", on_click=lambda e: edit_cb(data)),
         ft.IconButton(icon="delete", tooltip="Delete", on_click=lambda e: delete_cb(data["id"])),
     ])
+
+
+def render_task_header(fields):
+    """Render the header row for task list"""
+    return ft.Container(
+        content=ft.Row([
+            ft.Container(
+                content=ft.Text(
+                    field["label"],
+                    weight=ft.FontWeight.BOLD,
+                    size=14
+                ),
+                width=field["width"],
+                padding=ft.padding.symmetric(horizontal=8, vertical=4)
+            )
+            for field in fields
+        ]),
+        bgcolor=ft.Colors.GREY_100,
+        border=ft.border.all(1, ft.Colors.GREY_300),
+        border_radius=ft.border_radius.only(top_left=5, top_right=5),
+        margin=ft.margin.only(bottom=0)
+    )

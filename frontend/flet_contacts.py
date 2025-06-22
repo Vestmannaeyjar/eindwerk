@@ -1,7 +1,7 @@
 import flet as ft
 from datetime import datetime
 from components.paginated_list import paginated_list_view
-from utilities import render_row
+from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/contacts/"
 
@@ -63,5 +63,6 @@ def contacts_view(page: ft.Page):
         api_base_url=API_BASE_URL,
         render_item_row=render_contact_row,
         build_edit_form=lambda *args: build_contact_form(*args, page=page),
-        build_payload=None
+        build_payload=None,
+        render_header=render_task_header(CONTACT_FIELDS),
     )

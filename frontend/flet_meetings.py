@@ -2,7 +2,7 @@ import flet as ft
 from datetime import datetime
 import requests
 from components.paginated_list import paginated_list_view
-from utilities import render_row
+from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/tasks/meetings/"
 ROOMS_URL = "http://127.0.0.1:8000/api/tasks/meetingrooms/"
@@ -92,5 +92,6 @@ def meetings_view(page: ft.Page):
         api_base_url=API_BASE_URL,
         render_item_row=render_meeting_row,
         build_edit_form=lambda *args: build_meeting_form(*args, page=page),
-        build_payload=None
+        build_payload=None,
+        render_header=render_task_header(MEETING_FIELDS),
     )

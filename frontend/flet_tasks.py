@@ -3,7 +3,7 @@ import requests
 from datetime import datetime
 from components.datetime_functions import parse_iso_datetime
 from components.paginated_list import paginated_list_view
-from utilities import render_row
+from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/tasks/tasks/"
 PROJECTS_URL = "http://127.0.0.1:8000/api/tasks/projects/"
@@ -194,5 +194,6 @@ def tasks_view(page: ft.Page):
         api_base_url=API_BASE_URL,
         render_item_row=render_task_row,
         build_edit_form=lambda *args: build_task_form(*args, page=page),
-        build_payload=None  # Not used; logic in form
+        build_payload=None,  # Not used; logic in form
+        render_header=render_task_header(TASK_FIELDS),
     )

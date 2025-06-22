@@ -11,7 +11,8 @@ def paginated_list_view(
     api_base_url: str,
     render_item_row,
     build_edit_form,
-    build_payload
+    build_payload,
+    render_header=None
 ):
     container = ft.Column()
     items_column = ft.Column()
@@ -46,11 +47,15 @@ def paginated_list_view(
         return urlunparse(parsed._replace(query=urlencode(q_flat)))
 
     def load_items(url=None):
-        nonlocal next_page_url, prev_page_url, current_page_url
+        nonlocal next_page_url, prev_page_url, current_page_url, render_header
         if not url:
             url = api_base_url
         current_page_url = update_urls_with_search(url)
         items_column.controls.clear()
+
+        if render_header:
+            items_column.controls.append(render_header)
+
         try:
             res = requests.get(current_page_url)
             res.raise_for_status()

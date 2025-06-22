@@ -1,6 +1,6 @@
 import flet as ft
 from components.paginated_list import paginated_list_view
-from utilities import render_row
+from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/addresses/"
 
@@ -69,5 +69,6 @@ def addresses_view(page: ft.Page):
         api_base_url=API_BASE_URL,
         render_item_row=render_address_row,
         build_edit_form=lambda *args: build_address_form(*args, page=page),
-        build_payload=None
+        build_payload=None,
+        render_header=render_task_header(ADDRESS_FIELDS)
     )

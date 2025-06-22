@@ -1,6 +1,6 @@
 import flet as ft
 from components.paginated_list import paginated_list_view
-from utilities import render_row
+from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/tasks/meetingrooms/"
 
@@ -8,7 +8,6 @@ MEETINGROOM_FIELDS = [
     {"key": "name", "label": "Name", "width": 100},
     {"key": "capacity", "label": "Capacity", "width": 50},
 ]
-
 
 def render_meetingroom_row(meetingroom, open_edit_dialog, delete_meetingroom):
     return render_row(meetingroom, MEETINGROOM_FIELDS, open_edit_dialog, delete_meetingroom)
@@ -54,5 +53,6 @@ def meetingrooms_view(page: ft.Page):
         api_base_url=API_BASE_URL,
         render_item_row=render_meetingroom_row,
         build_edit_form=lambda *args: build_meetingroom_form(*args, page=page),
-        build_payload=None
+        build_payload=None,
+        render_header=render_task_header(MEETINGROOM_FIELDS)
     )
