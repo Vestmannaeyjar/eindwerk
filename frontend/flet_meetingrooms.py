@@ -5,8 +5,8 @@ from utilities import render_row, render_task_header
 API_BASE_URL = "http://127.0.0.1:8000/api/tasks/meetingrooms/"
 
 MEETINGROOM_FIELDS = [
-    {"key": "name", "label": "Name", "width": 100},
-    {"key": "capacity", "label": "Capacity", "width": 50},
+    {"key": "name", "label": "Naam", "width": 400},
+    {"key": "capacity", "label": "Capaciteit", "width": 100},
 ]
 
 def render_meetingroom_row(meetingroom, open_edit_dialog, delete_meetingroom):

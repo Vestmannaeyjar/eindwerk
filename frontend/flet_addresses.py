@@ -5,11 +5,11 @@ from utilities import render_row, render_task_header
 API_BASE_URL = "http://127.0.0.1:8000/api/addresses/"
 
 ADDRESS_FIELDS = [
-    {"key": "name", "label": "Name", "width": 100},
-    {"key": "street", "label": "Street", "width": 100},
-    {"key": "zip", "label": "Zip-code", "width": 100},
-    {"key": "city", "label": "City", "width": 100},
-    {"key": "country", "label": "Country", "width": 100},
+    {"key": "name", "label": "Adresnaam", "width": 100},
+    {"key": "street", "label": "Straat", "width": 100},
+    {"key": "zip", "label": "Postcode", "width": 100},
+    {"key": "city", "label": "Plaats", "width": 100},
+    {"key": "country", "label": "Land", "width": 100},
 ]
 
 

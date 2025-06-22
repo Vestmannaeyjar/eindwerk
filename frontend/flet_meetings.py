@@ -10,7 +10,7 @@ ROOMS_URL = "http://127.0.0.1:8000/api/tasks/meetingrooms/"
 MEETING_FIELDS = [
     {"key": "name", "label": "Naam", "width": 100},
     {"key": "date", "label": "Datum (dd-mm-jjjj)", "width": 100},
-    {"key": "contacts", "label": "Deelners", "width": 100},
+    {"key": "contacts", "label": "Deelnemers", "width": 100},
     {"key": "meetingroom", "label": "Vergaderzaal", "width": 100},
     {"key": "digital_space", "label": "Digitale ruimte (URL)", "width": 100},
 ]

@@ -5,7 +5,7 @@ from utilities import render_row, render_task_header
 API_BASE_URL = "http://127.0.0.1:8000/api/tasks/meetingacceptances/"
 
 MEETINGACCEPTANCE_FIELDS = [
-    {"key": "name", "label": "Name", "width": 100},
+    {"key": "name", "label": "Naam", "width": 100},
 ]
 
 def render_meetingacceptance_row(meetingacceptance, open_edit_dialog, delete_meetingacceptance):

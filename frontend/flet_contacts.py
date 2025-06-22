@@ -6,9 +6,9 @@ from utilities import render_row, render_task_header
 API_BASE_URL = "http://127.0.0.1:8000/api/contacts/"
 
 CONTACT_FIELDS = [
-    {"key": "firstname", "label": "First name", "width": 100},
-    {"key": "lastname", "label": "Last name", "width": 100},
-    {"key": "date_of_birth", "label": "Date (dd-mm-yyyy)", "width": 100},
+    {"key": "firstname", "label": "Voornaam", "width": 200},
+    {"key": "lastname", "label": "Familienaam", "width": 200},
+    {"key": "date_of_birth", "label": "Geboortedatum", "width": 200},
 ]
 
 
