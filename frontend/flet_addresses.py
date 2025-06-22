@@ -11,7 +11,7 @@ but_color = ft.Colors.GREEN_800
 
 ADDRESS_FIELDS = [
     {"key": "name", "label": "Adresnaam", "width": 100},
-    {"key": "street", "label": "Straat", "width": 100},
+    {"key": "street", "label": "Straat", "width": 400},
     {"key": "zip", "label": "Postcode", "width": 100},
     {"key": "city", "label": "Plaats", "width": 100},
     {"key": "country", "label": "Land", "width": 100},

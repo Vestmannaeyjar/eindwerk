@@ -112,7 +112,7 @@ def paginated_list_view(
         delete_dialog.title = ft.Text("Bevestig verwijderen")
         delete_dialog.content = ft.Text("Ben je zeker?")
         delete_dialog.actions = [
-            ft.ElevatedButton("Annuleer", on_click=lambda e: close_dialog(), color=ft.Colors.BLUE_500, icon=ft.Icons.ARROW_BACK),
+            ft.ElevatedButton("Ga terug", on_click=lambda e: close_dialog(), color=ft.Colors.BLUE_500, icon=ft.Icons.ARROW_BACK),
             ft.ElevatedButton("Verwijder", on_click=confirm_delete, color=ft.Colors.RED_500, icon=ft.Icons.DELETE_FOREVER),
         ]
         page.dialog = delete_dialog
