@@ -1,10 +1,3 @@
-from django.db.models import Q
-from django.shortcuts import get_object_or_404
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from django.db.models.functions import Cast
-from django.db.models import CharField
-
 from rest_framework import viewsets, filters
 from .models import (
     Action, Context, State, Tag, TaskType, MeetingRoom, Meeting,
@@ -21,72 +14,71 @@ from .serializers import (
 class ActionViewSet(viewsets.ModelViewSet):
     queryset = Action.objects.all()
     serializer_class = ActionSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
 
 
 class ContextViewSet(viewsets.ModelViewSet):
     queryset = Context.objects.all()
     serializer_class = ContextSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
 
 
 class StateViewSet(viewsets.ModelViewSet):
     queryset = State.objects.all()
     serializer_class = StateSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
 
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
 
 
 class TaskTypeViewSet(viewsets.ModelViewSet):
     queryset = TaskType.objects.all()
     serializer_class = TaskTypeSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['subject', 'deadline']
 
 
 class MeetingRoomViewSet(viewsets.ModelViewSet):
     queryset = MeetingRoom.objects.all()
     serializer_class = MeetingRoomSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', 'capacity']
 
 
 class MeetingViewSet(viewsets.ModelViewSet):
     queryset = Meeting.objects.all()
     serializer_class = MeetingSerializer
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        search = self.request.query_params.get("search")
-
-        if search:
-            # Cast date to string to allow partial matching
-            queryset = queryset.annotate(
-                date_str=Cast("date", CharField())
-            )
-
-            filters = (
-                    Q(name__icontains=search) |
-                    Q(digital_space__icontains=search) |
-                    Q(meetingroom__id__icontains=search) |
-                    Q(date_str__icontains=search)
-            )
-
-            queryset = queryset.filter(filters)
-
-        return queryset
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', 'date', 'contacts', 'meetingroom', 'digital_space']
 
 
 class MeetingAcceptanceViewSet(viewsets.ModelViewSet):
     queryset = MeetingAcceptance.objects.all()
     serializer_class = MeetingAcceptanceSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
 
 
 class MeetingContextContactViewSet(viewsets.ModelViewSet):
     queryset = MeetingContextContact.objects.all()
     serializer_class = MeetingContextContactSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['contextcontact', 'meeting', 'status']
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', 'startdate', 'enddate', 'total_projected_time_internal', 'total_projected_time_external']
 
 
 class TaskViewSet(viewsets.ModelViewSet):

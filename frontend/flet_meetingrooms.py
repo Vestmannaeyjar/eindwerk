@@ -1,15 +1,17 @@
 import flet as ft
 from components.paginated_list import paginated_list_view
+from utilities import render_row
 
 API_BASE_URL = "http://127.0.0.1:8000/api/tasks/meetingrooms/"
 
+MEETINGROOM_FIELDS = [
+    {"key": "name", "label": "Name", "width": 100},
+    {"key": "capacity", "label": "Capacity", "width": 50},
+]
+
 
 def render_meetingroom_row(meetingroom, open_edit_dialog, delete_meetingroom):
-    return ft.Row([
-        ft.Text(f"{meetingroom['name']} – {meetingroom['capacity']}", expand=True),
-        ft.IconButton(icon="edit", tooltip="Edit", on_click=lambda e: open_edit_dialog(meetingroom)),
-        ft.IconButton(icon="delete", tooltip="Delete", on_click=lambda e: delete_meetingroom(meetingroom["id"])),
-    ])
+    return render_row(meetingroom, MEETINGROOM_FIELDS, open_edit_dialog, delete_meetingroom)
 
 
 def build_meetingroom_form(current_data, on_submit, on_cancel, page):
@@ -47,7 +49,8 @@ def meetingrooms_view(page: ft.Page):
 
     return paginated_list_view(
         page=page,
-        title="Meetingrooms",
+        title="Vergaderzalen",
+        item="vegaderzaal",
         api_base_url=API_BASE_URL,
         render_item_row=render_meetingroom_row,
         build_edit_form=lambda *args: build_meetingroom_form(*args, page=page),

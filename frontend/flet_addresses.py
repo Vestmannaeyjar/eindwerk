@@ -1,17 +1,20 @@
 import flet as ft
-from datetime import datetime
-import requests
 from components.paginated_list import paginated_list_view
+from utilities import render_row
 
 API_BASE_URL = "http://127.0.0.1:8000/api/addresses/"
 
+ADDRESS_FIELDS = [
+    {"key": "name", "label": "Name", "width": 100},
+    {"key": "street", "label": "Street", "width": 100},
+    {"key": "zip", "label": "Zip-code", "width": 100},
+    {"key": "city", "label": "City", "width": 100},
+    {"key": "country", "label": "Country", "width": 100},
+]
+
 
 def render_address_row(address, open_edit_dialog, delete_address):
-    return ft.Row([
-        ft.Text(f"{address['name']} – {address['street']} – {address['zip']} – {address['city']} – {address['country']}", expand=True),
-        ft.IconButton(icon="edit", tooltip="Edit", on_click=lambda e: open_edit_dialog(address)),
-        ft.IconButton(icon="delete", tooltip="Delete", on_click=lambda e: delete_address(address["id"])),
-    ])
+    return render_row(address, ADDRESS_FIELDS, open_edit_dialog, delete_address)
 
 
 def build_address_form(current_data, on_submit, on_cancel, page):
@@ -61,7 +64,8 @@ def addresses_view(page: ft.Page):
 
     return paginated_list_view(
         page=page,
-        title="Addresses",
+        title="Adressen",
+        item="adres",
         api_base_url=API_BASE_URL,
         render_item_row=render_address_row,
         build_edit_form=lambda *args: build_address_form(*args, page=page),

@@ -2,24 +2,31 @@ import flet as ft
 from datetime import datetime
 import requests
 from components.paginated_list import paginated_list_view
+from utilities import render_row
 
 API_BASE_URL = "http://127.0.0.1:8000/api/tasks/meetings/"
 ROOMS_URL = "http://127.0.0.1:8000/api/tasks/meetingrooms/"
 
+MEETING_FIELDS = [
+    {"key": "name", "label": "Naam", "width": 100},
+    {"key": "date", "label": "Datum (dd-mm-jjjj)", "width": 100},
+    {"key": "contacts", "label": "Deelners", "width": 100},
+    {"key": "meetingroom", "label": "Vergaderzaal", "width": 100},
+    {"key": "digital_space", "label": "Digitale ruimte (URL)", "width": 100},
+]
+
+FIELD_LABELS = {field["key"]: field["label"] for field in MEETING_FIELDS}
+
 
 def render_meeting_row(meeting, open_edit_dialog, delete_meeting):
-    return ft.Row([
-        ft.Text(f"{meeting['name']} – {meeting['date']} – {meeting['digital_space']}", expand=True),
-        ft.IconButton(icon="edit", tooltip="Edit", on_click=lambda e: open_edit_dialog(meeting)),
-        ft.IconButton(icon="delete", tooltip="Delete", on_click=lambda e: delete_meeting(meeting["id"])),
-    ])
+    return render_row(meeting, MEETING_FIELDS, open_edit_dialog, delete_meeting)
 
 
 def build_meeting_form(current_data, on_submit, on_cancel, page):
-    title_input = ft.TextField(label="Title")
-    date_input = ft.TextField(label="Date (dd-mm-yyyy)")
-    digital_space_input = ft.TextField(label="Digital Space")
-    room_dropdown = ft.Dropdown(label="Meeting Room")
+    title_input = ft.TextField(label=FIELD_LABELS["name"])
+    date_input = ft.TextField(label=FIELD_LABELS["date"])
+    digital_space_input = ft.TextField(label=FIELD_LABELS["digital_space"])
+    room_dropdown = ft.Dropdown(label=FIELD_LABELS["meetingroom"])
 
     def load_meeting_rooms():
         try:
@@ -29,7 +36,7 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
             rooms = data.get("results", data)
             room_dropdown.options = [ft.dropdown.Option(str(r["id"]), r["name"]) for r in rooms]
         except Exception as e:
-            print("Error loading rooms:", e)
+            print("Error bij het laden van vergaderzalen:", e)
 
     load_meeting_rooms()
 
@@ -47,7 +54,7 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
     def handle_submit(e):
         try:
             if not room_dropdown.value:
-                raise ValueError("Meeting room is required.")
+                raise ValueError("Vergaderzaal is verplicht.")
             dt = datetime.strptime(date_input.value, "%d-%m-%Y")
             iso_date = dt.isoformat() + "Z"
 
@@ -80,7 +87,8 @@ def meetings_view(page: ft.Page):
 
     return paginated_list_view(
         page=page,
-        title="Meetings",
+        title="Vergaderingen",
+        item="vegadering",
         api_base_url=API_BASE_URL,
         render_item_row=render_meeting_row,
         build_edit_form=lambda *args: build_meeting_form(*args, page=page),

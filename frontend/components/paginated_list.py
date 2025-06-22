@@ -7,6 +7,7 @@ import math
 def paginated_list_view(
     page: ft.Page,
     title: str,
+    item: str,
     api_base_url: str,
     render_item_row,
     build_edit_form,
@@ -15,7 +16,7 @@ def paginated_list_view(
     container = ft.Column()
     items_column = ft.Column()
     page.scroll = "auto"
-    page.title = title
+    page.title = f"My ticket app / {title}"
 
     current_item_id = None
     current_data = {}
@@ -26,17 +27,21 @@ def paginated_list_view(
 
     total_results_text = ft.Text()
     page_status_text = ft.Text()
-    search_input = ft.TextField(label=f"Search {title.lower()}", width=300)
+    search_input = ft.TextField(label=f"Zoek een {item}", width=300)
 
-    def update_urls_with_search(url):
+    def update_urls_with_search(url, term=None):
         if not url:
             return None
         parsed = urlparse(url)
         q = parse_qs(parsed.query)
-        if search_term:
-            q["search"] = [search_term]
+
+        term = term if term is not None else search_term
+
+        if term:
+            q["search"] = [term]
         else:
             q.pop("search", None)
+
         q_flat = {k: v[0] for k, v in q.items()}
         return urlunparse(parsed._replace(query=urlencode(q_flat)))
 
@@ -58,8 +63,8 @@ def paginated_list_view(
             current_page_num = int(parse_qs(parsed_url.query).get("page", [1])[0])
             total_pages = math.ceil(total_count / page_size)
 
-            total_results_text.value = f"Total: {total_count}"
-            page_status_text.value = f"Page {current_page_num} of {total_pages}"
+            total_results_text.value = f"Aantal records: {total_count}"
+            page_status_text.value = f"Pagina {current_page_num} van {total_pages}"
 
             for item in items:
                 row = render_item_row(item, open_edit_dialog, delete_item)
@@ -86,19 +91,19 @@ def paginated_list_view(
             try:
                 res = requests.delete(f"{api_base_url}{item_id}/")
                 res.raise_for_status()
-                page.snack_bar = ft.SnackBar(ft.Text(f"{title} deleted"))
+                page.snack_bar = ft.SnackBar(ft.Text(f"{title} verwijderd"))
                 delete_dialog.open = False
                 load_items()
             except Exception as err:
-                page.snack_bar = ft.SnackBar(ft.Text(f"Delete failed: {err}"))
+                page.snack_bar = ft.SnackBar(ft.Text(f"Verwijderen is mislukt: {err}"))
             page.snack_bar.open = True
             page.update()
 
-        delete_dialog.title = ft.Text("Confirm delete")
-        delete_dialog.content = ft.Text("Are you sure?")
+        delete_dialog.title = ft.Text("Bevestig verwijderen")
+        delete_dialog.content = ft.Text("Ben je zeker?")
         delete_dialog.actions = [
-            ft.TextButton("Cancel", on_click=lambda e: close_dialog()),
-            ft.ElevatedButton("Delete", on_click=confirm_delete),
+            ft.TextButton("Annuleer", on_click=lambda e: close_dialog()),
+            ft.ElevatedButton("Verwijder", on_click=confirm_delete),
         ]
         page.dialog = delete_dialog
         page.open(delete_dialog)
@@ -112,7 +117,10 @@ def paginated_list_view(
         nonlocal current_item_id, current_data
         current_item_id = item["id"] if item else None
         current_data = item or {}
-        edit_dialog.content = build_edit_form(current_data, submit_edit, cancel_edit)
+        edit_dialog.content = ft.Container(
+            content=build_edit_form(current_data, submit_edit, cancel_edit),
+            bgcolor=ft.Colors.WHITE,
+        )
         page.dialog = edit_dialog
         page.open(edit_dialog)
         page.update()
@@ -128,7 +136,7 @@ def paginated_list_view(
             else:
                 res = requests.post(api_base_url, json=payload)
             res.raise_for_status()
-            page.snack_bar = ft.SnackBar(ft.Text(f"{title} saved successfully"))
+            page.snack_bar = ft.SnackBar(ft.Text(f"{title} succesvol bewaard"))
             page.snack_bar.open = True
             page.close(edit_dialog)
             load_items()
@@ -145,22 +153,49 @@ def paginated_list_view(
             page.snack_bar.open = True
         page.update()
 
-    prev_button = ft.ElevatedButton("Previous", on_click=lambda e: load_items(prev_page_url), disabled=True)
-    next_button = ft.ElevatedButton("Next", on_click=lambda e: load_items(next_page_url), disabled=True)
+    prev_button = ft.ElevatedButton("Vorige", on_click=lambda e: load_items(prev_page_url), disabled=True)
+    next_button = ft.ElevatedButton("Volgende", on_click=lambda e: load_items(next_page_url), disabled=True)
 
     search_input.on_change = on_search
-    add_button = ft.ElevatedButton(f"Add {title[:-1]}", on_click=lambda e: open_edit_dialog(None))
+    add_button = ft.ElevatedButton(f"Voeg een {item} toe", on_click=lambda e: open_edit_dialog(None))
 
-    edit_dialog = ft.AlertDialog(modal=True, title=ft.Text(f"Edit {title[:-1]}"), actions_alignment=ft.MainAxisAlignment.END)
+    edit_dialog = ft.AlertDialog(modal=True, title=ft.Text(f"Bewerk {title[:-1]}"), actions_alignment=ft.MainAxisAlignment.END)
     delete_dialog = ft.AlertDialog(modal=True, actions_alignment=ft.MainAxisAlignment.END)
 
+    top_controls = ft.Row(
+        [
+            add_button,
+            search_input,
+            prev_button,
+            next_button,
+        ],
+        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+        wrap=True,
+    )
+
     container.controls.extend([
-        search_input,
-        total_results_text,
-        items_column,
-        page_status_text,
-        ft.Row([prev_button, next_button], alignment=ft.MainAxisAlignment.CENTER),
-        add_button,
+        ft.Container(
+            content=top_controls,
+            expand=True,
+            padding=0,
+            margin=0,
+        ),
+
+        ft.Container(
+            content=ft.Row([total_results_text, page_status_text]),
+            expand=True,
+            padding=0,
+            margin=0,
+        ),
+
+        # Items list section with white background
+        ft.Container(
+            content=items_column,
+            expand=True,
+            padding=0,
+            margin=0,
+        ),
     ])
 
     load_items()
