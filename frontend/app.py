@@ -8,7 +8,7 @@ from flet_tasks import tasks_view
 
 
 def main(page: ft.Page):
-    page.title = "My ffTicket App"
+    page.title = "My Ticket App"
     page.bgcolor = ft.Colors.BLUE_50
 
     content = ft.Container(

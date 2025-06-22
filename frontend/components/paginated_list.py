@@ -7,7 +7,7 @@ import math
 def paginated_list_view(
     page: ft.Page,
     title: str,
-    item: str,
+    item_description: str,
     api_base_url: str,
     render_item_row,
     build_edit_form,
@@ -27,7 +27,7 @@ def paginated_list_view(
 
     total_results_text = ft.Text()
     page_status_text = ft.Text()
-    search_input = ft.TextField(label=f"Zoek een {item}", width=300)
+    search_input = ft.TextField(label=f"Zoek een {item_description}", width=300)
 
     def update_urls_with_search(url, term=None):
         if not url:
@@ -63,7 +63,7 @@ def paginated_list_view(
             current_page_num = int(parse_qs(parsed_url.query).get("page", [1])[0])
             total_pages = math.ceil(total_count / page_size)
 
-            total_results_text.value = f"Aantal records: {total_count}"
+            total_results_text.value = f"Aantal {title.lower()}: {total_count}"
             page_status_text.value = f"Pagina {current_page_num} van {total_pages}"
 
             for item in items:
@@ -114,13 +114,17 @@ def paginated_list_view(
         page.update()
 
     def open_edit_dialog(item=None):
-        nonlocal current_item_id, current_data
+        nonlocal current_item_id, current_data, item_description
         current_item_id = item["id"] if item else None
         current_data = item or {}
         edit_dialog.content = ft.Container(
             content=build_edit_form(current_data, submit_edit, cancel_edit),
             bgcolor=ft.Colors.WHITE,
         )
+        if not current_data:
+            edit_dialog.title = f"Maak nieuwe {item_description}"
+        else:
+            edit_dialog.title = f"Bewerk {item_description}"
         page.dialog = edit_dialog
         page.open(edit_dialog)
         page.update()
@@ -157,9 +161,9 @@ def paginated_list_view(
     next_button = ft.ElevatedButton("Volgende", on_click=lambda e: load_items(next_page_url), disabled=True)
 
     search_input.on_change = on_search
-    add_button = ft.ElevatedButton(f"Voeg een {item} toe", on_click=lambda e: open_edit_dialog(None))
+    add_button = ft.ElevatedButton(f"Voeg een {item_description} toe", on_click=lambda e: open_edit_dialog(None))
 
-    edit_dialog = ft.AlertDialog(modal=True, title=ft.Text(f"Bewerk {title[:-1]}"), actions_alignment=ft.MainAxisAlignment.END)
+    edit_dialog = ft.AlertDialog(modal=True, title=ft.Text(f"Bewerk {item_description}"), actions_alignment=ft.MainAxisAlignment.END)
     delete_dialog = ft.AlertDialog(modal=True, actions_alignment=ft.MainAxisAlignment.END)
 
     top_controls = ft.Row(

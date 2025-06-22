@@ -3,6 +3,7 @@ from . import views
 
 router = DefaultRouter()
 router.register(r'contacts', views.ContactViewSet, basename='contact')
+router.register(r'contextcontacts', views.ContextContactViewSet, basename='contextcontact')
 router.register(r'addresses', views.AddressViewSet, basename='address')
 
 urlpatterns = router.urls

@@ -50,7 +50,7 @@ def meetingrooms_view(page: ft.Page):
     return paginated_list_view(
         page=page,
         title="Vergaderzalen",
-        item="vegaderzaal",
+        item_description="vegaderzaal",
         api_base_url=API_BASE_URL,
         render_item_row=render_meetingroom_row,
         build_edit_form=lambda *args: build_meetingroom_form(*args, page=page),

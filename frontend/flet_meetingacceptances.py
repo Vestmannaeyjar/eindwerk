@@ -45,7 +45,7 @@ def meetingacceptances_view(page: ft.Page):
     return paginated_list_view(
         page=page,
         title="Status deelnemers",
-        item="deelnemerstatus",
+        item_description="deelnemerstatus",
         api_base_url=API_BASE_URL,
         render_item_row=render_meetingacceptance_row,
         build_edit_form=lambda *args: build_meetingacceptance_form(*args, page=page),

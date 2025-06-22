@@ -79,10 +79,20 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    project_name = serializers.CharField(source='project.name', read_only=True)
+    contextcontact_name = serializers.SerializerMethodField()
+
+    def get_contextcontact_name(self, obj):
+        if obj.assignment and obj.assignment.contact:
+            firstname = obj.assignment.contact.firstname or ""
+            lastname = obj.assignment.contact.lastname or ""
+            function = obj.assignment.function or "onbekend"
+            return f"{firstname} {lastname} ({function})".strip()
+        return ""
+
     class Meta:
         model = Task
         fields = '__all__'
-
 
 class CycleSerializer(serializers.ModelSerializer):
     class Meta:

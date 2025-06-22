@@ -88,7 +88,7 @@ def meetings_view(page: ft.Page):
     return paginated_list_view(
         page=page,
         title="Vergaderingen",
-        item="vegadering",
+        item_description="vergadering",
         api_base_url=API_BASE_URL,
         render_item_row=render_meeting_row,
         build_edit_form=lambda *args: build_meeting_form(*args, page=page),

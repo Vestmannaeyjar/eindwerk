@@ -65,7 +65,7 @@ def addresses_view(page: ft.Page):
     return paginated_list_view(
         page=page,
         title="Adressen",
-        item="adres",
+        item_description="adres",
         api_base_url=API_BASE_URL,
         render_item_row=render_address_row,
         build_edit_form=lambda *args: build_address_form(*args, page=page),
