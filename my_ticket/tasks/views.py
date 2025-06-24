@@ -57,7 +57,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
     queryset = Meeting.objects.all()
     serializer_class = MeetingSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['name', 'startdate', 'enddate', 'contacts', 'meetingroom', 'digital_space']
+    search_fields = ['name', 'meetingroom']
 
 
 class MeetingAcceptanceViewSet(viewsets.ModelViewSet):
@@ -85,7 +85,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ["subject", "description"]
+    search_fields = ["subject"]
     ordering_fields = ["deadline", "subject", "created_at"]
     ordering = ["-deadline"]
 

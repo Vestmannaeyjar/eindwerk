@@ -2,7 +2,7 @@ import flet as ft
 from datetime import datetime
 from components.paginated_list import paginated_list_view
 from components.dialogcontrol import dialog_controls
-from components.error import error_container, show_error
+from components.error import error_container, show_error, hide_error
 from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/contacts/"
@@ -36,6 +36,7 @@ def build_contact_form(current_data, on_submit, on_cancel, page):
             inputs[key].value = value
 
     def handle_submit(_):
+        hide_error(error_container, page)
         try:
             dob = datetime.strptime(inputs["date_of_birth"].value.strip(), "%d-%m-%Y").strftime("%Y-%m-%d")
             payload = {

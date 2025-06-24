@@ -27,13 +27,9 @@ def main(page: ft.Page):
         meetings_view,
         meetingrooms_view,
         meetingacceptances_view,
-        tasks_view,  # Actions
-        tasks_view,  # Tags
-        tasks_view,  # Tasktypes
         contacts_view,
         addresses_view,
         projects_view,
-        tasks_view,  # Cycles
     ]
 
     drawer_items = [
@@ -41,13 +37,9 @@ def main(page: ft.Page):
         ft.NavigationDrawerDestination(icon="event", label="Vergaderingen"),
         ft.NavigationDrawerDestination(icon="meeting_room", label="Vergaderzalen"),
         ft.NavigationDrawerDestination(icon="check_circle", label="Deelnemerstatussen"),
-        ft.NavigationDrawerDestination(icon="bolt", label="Acties"),
-        ft.NavigationDrawerDestination(icon="label", label="Tags"),
-        ft.NavigationDrawerDestination(icon="category", label="Taaktypes"),
         ft.NavigationDrawerDestination(icon="contact_page", label="Personen"),
         ft.NavigationDrawerDestination(icon="map", label="Adressen"),
         ft.NavigationDrawerDestination(icon="business", label="Projecten"),
-        ft.NavigationDrawerDestination(icon="repeat", label="Cycli"),
     ]
 
     def show_view(view_func, title=None):

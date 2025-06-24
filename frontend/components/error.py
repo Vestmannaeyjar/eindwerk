@@ -15,3 +15,10 @@ def show_error(message, container, page):
     container.padding = 10
     container.visible = True
     page.update()
+
+
+def hide_error(container, page):
+    """Hide error message by clearing the error container"""
+    container.content = None
+    container.visible = False
+    page.update()

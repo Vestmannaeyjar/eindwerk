@@ -1,7 +1,7 @@
 import flet as ft
 from components.paginated_list import paginated_list_view
 from components.dialogcontrol import dialog_controls
-from components.error import error_container, show_error
+from components.error import error_container, show_error, hide_error
 from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/tasks/meetingacceptances/"
@@ -28,6 +28,8 @@ def build_meetingacceptance_form(current_data, on_submit, on_cancel, page):
         name_input.value = current_data.get("name", "")
 
     def handle_submit(_):
+        hide_error(error_container, page)
+
         try:
             payload = {
                 "name": name_input.value.strip(),

@@ -4,7 +4,7 @@ from datetime import datetime
 from components.datetime_functions import parse_iso_datetime
 from components.paginated_list import paginated_list_view
 from components.dialogcontrol import dialog_controls
-from components.error import error_container, show_error
+from components.error import error_container, show_error, hide_error
 from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/tasks/tasks/"
@@ -145,6 +145,7 @@ def build_task_form(current_data, on_submit, on_cancel, page):
         }
 
     def handle_submit(_):
+        hide_error(error_container, page)
         try:
             payload = validate_form_data()
             on_submit(payload)

@@ -4,7 +4,7 @@ import requests
 from components.paginated_list import paginated_list_view
 from components.datetime_functions import parse_date
 from components.dialogcontrol import dialog_controls
-from components.error import error_container, show_error
+from components.error import error_container, show_error, hide_error
 from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/tasks/meetings/"
@@ -116,7 +116,7 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
                 if cont_id is None:
                     continue
 
-                cont_name = contact.get("contextcontact_name", "").strip()
+                cont_name = cont.get("contextcontact_name", "").strip()
 
                 contacts_dropdown.options.append(
                     ft.dropdown.Option(str(cont_id), cont_name)
@@ -290,6 +290,7 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
         # Parse dates - debug the input values
         startdate_str = startdate_input.value.strip() if startdate_input.value else ""
         enddate_str = enddate_input.value.strip() if enddate_input.value else ""
+        digital_space_str = digital_space_input.value.strip() if digital_space_input.value else ""
 
         print(f"Date inputs - Start: '{startdate_str}', End: '{enddate_str}'")
 
@@ -297,6 +298,8 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
             raise ValueError("Startdatum is verplicht.")
         if not enddate_str:
             raise ValueError("Einddatum is verplicht.")
+        if not digital_space_str:
+            raise ValueError("Digitale ruimte is verplicht.")
 
         # Parse dates - handle both string and datetime returns
         startdate_parsed = parse_date(startdate_str) or parse_datetime_input(startdate_str)
@@ -366,6 +369,8 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
         return payload
 
     def handle_submit(_):
+        hide_error(error_container, page)
+
         try:
             payload = validate_form_data()
             print(f"Submitting payload: {payload}")  # Debug print
