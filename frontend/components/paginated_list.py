@@ -1,8 +1,7 @@
 import flet as ft
+import math
 import requests
 from urllib.parse import urlencode, urlparse, urlunparse, parse_qs
-
-import math
 from frontend.components.key import GOOGLE_API_KEY
 
 
@@ -100,7 +99,7 @@ def create_google_search_dialog(page, on_address_selected, on_cancel, but_color)
     search_progress = ft.ProgressRing(visible=False)
     search_error = ft.Text(value="", visible=False, color=ft.Colors.RED)
 
-    def perform_search(e=None):
+    def perform_search(_):
         query = search_input.value.strip()
         if not query or len(query) < 3:
             search_error.value = "Voer minimaal 3 karakters in om te zoeken"
@@ -212,7 +211,6 @@ def paginated_list_view(
     api_base_url: str,
     render_item_row,
     build_edit_form,
-    build_payload,
     render_header=None,
     p_color=None,
     ab_color=None,
@@ -239,6 +237,7 @@ def paginated_list_view(
     def update_urls_with_search(url, term=None):
         if not url:
             return None
+
         parsed = urlparse(url)
         q = parse_qs(parsed.query)
 
@@ -250,7 +249,17 @@ def paginated_list_view(
             q.pop("search", None)
 
         q_flat = {k: v[0] for k, v in q.items()}
-        return urlunparse(parsed._replace(query=urlencode(q_flat)))
+
+        # Use manual tuple construction instead of _replace
+        new_parsed = (
+            parsed.scheme,
+            parsed.netloc,
+            parsed.path,
+            parsed.params,
+            urlencode(q_flat),
+            parsed.fragment
+        )
+        return urlunparse(new_parsed)
 
     def load_items(url=None):
         nonlocal next_page_url, prev_page_url, current_page_url, render_header
@@ -292,13 +301,13 @@ def paginated_list_view(
 
         page.update()
 
-    def on_search(e):
+    def on_search(_):
         nonlocal search_term
         search_term = search_input.value.strip()
         load_items(api_base_url)
 
     def delete_item(item_id):
-        def confirm_delete(e):
+        def confirm_delete(_):
             try:
                 res = requests.delete(f"{api_base_url}{item_id}/")
                 res.raise_for_status()
@@ -324,14 +333,17 @@ def paginated_list_view(
         delete_dialog.open = False
         page.update()
 
+    def form_container(data):
+        return ft.Container(
+            content=build_edit_form(data, submit_edit, cancel_edit),
+            bgcolor=ft.Colors.WHITE,
+        )
+
     def open_edit_dialog(item=None):
         nonlocal current_item_id, current_data, item_description
         current_item_id = item["id"] if item else None
         current_data = item or {}
-        edit_dialog.content = ft.Container(
-            content=build_edit_form(current_data, submit_edit, cancel_edit),
-            bgcolor=ft.Colors.WHITE,
-        )
+        edit_dialog.content = form_container(current_data)
         if not current_data:
             edit_dialog.title = f"Maak nieuwe {item_description}"
         else:
@@ -361,10 +373,7 @@ def paginated_list_view(
                 # show_regular_edit_dialog()
 
             def show_regular_edit_dialog():
-                edit_dialog.content = ft.Container(
-                    content=build_edit_form(current_data, submit_edit, cancel_edit),
-                    bgcolor=ft.Colors.WHITE,
-                )
+                edit_dialog.content = form_container(current_data)
                 edit_dialog.title = f"Maak nieuwe {item_description}"
                 page.dialog = edit_dialog
                 page.open(edit_dialog)
@@ -390,7 +399,7 @@ def paginated_list_view(
             page.open(edit_dialog)
             page.update()
 
-    def cancel_edit(e):
+    def cancel_edit(_):
         page.close(edit_dialog)
         page.update()
 
@@ -401,29 +410,30 @@ def paginated_list_view(
             else:
                 res = requests.post(api_base_url, json=payload)
             res.raise_for_status()
-            page.snack_bar = ft.SnackBar(ft.Text(f"{title} succesvol bewaard"))
-            page.snack_bar.open = True
-            page.close(edit_dialog)
+            edit_dialog.open = False  # Fixed: use edit_dialog.open = False instead of page.close()
             load_items()
         except requests.exceptions.HTTPError as http_err:
             try:
                 errors = http_err.response.json()
                 error_message = "; ".join(f"{k}: {', '.join(v)}" for k, v in errors.items())
-            except:
+            except (ValueError, KeyError, AttributeError):  # Fixed: specific exceptions
                 error_message = str(http_err)
-            page.snack_bar = ft.SnackBar(ft.Text(f"Error: {error_message}"))
-            page.snack_bar.open = True
+            # Error handling without snackbar - you could add logging here if needed
+            print(f"HTTP Error: {error_message}")  # Optional: for debugging
         except Exception as err:
-            page.snack_bar = ft.SnackBar(ft.Text(f"Error: {err}"))
-            page.snack_bar.open = True
-        page.update()
+            # Error handling without snackbar - you could add logging here if needed
+            print(f"Error: {err}")  # Optional: for debugging
+        finally:
+            page.update()
 
     prev_button = ft.ElevatedButton("Vorige", on_click=lambda e: load_items(prev_page_url), disabled=True, color=but_color)
     next_button = ft.ElevatedButton("Volgende", on_click=lambda e: load_items(next_page_url), disabled=True, color=but_color)
 
     search_input.on_change = on_search
-    add_button = ft.ElevatedButton(f"Voeg een {item_description} toe", on_click=lambda e: open_edit_dialog(None), icon=ft.Icons.ADD_OUTLINED, color=but_color)
-    add_google_button = ft.ElevatedButton(f"Voeg via Google een {item_description} toe", on_click=lambda e: open_google_edit_dialog(None), icon=ft.Icons.ADD_LOCATION_ALT_OUTLINED, color=but_color, visible=(item_description == "adres"))
+
+    item_descr = item_description or "item"
+    add_button = ft.ElevatedButton(f"Voeg een {item_descr} toe", on_click=lambda e: open_edit_dialog(), icon=ft.Icons.ADD_OUTLINED, color=but_color)
+    add_google_button = ft.ElevatedButton(f"Voeg via Google een {item_descr} toe", on_click=lambda e: open_google_edit_dialog(), icon=ft.Icons.ADD_LOCATION_ALT_OUTLINED, color=but_color, visible=(item_description == "adres"))
 
     edit_dialog = ft.AlertDialog(modal=True, title=ft.Text(f"Bewerk {item_description}"), actions_alignment=ft.MainAxisAlignment.END)
     delete_dialog = ft.AlertDialog(modal=True, actions_alignment=ft.MainAxisAlignment.END)

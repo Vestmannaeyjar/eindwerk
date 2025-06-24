@@ -3,6 +3,12 @@ from datetime import datetime
 
 def parse_iso_datetime(iso_string, output_format="%d-%m-%Y %H:%M"):
     """Parse ISO datetime string to formatted string."""
+
+    if not iso_string:  # Handles None, empty string, etc.
+        return ""  # or None, depending on what you want to return
+
+    if not isinstance(iso_string, str):
+        return ""  # or handle differently
     try:
         # First try with +00:00 format (what your system is sending)
         dt = datetime.strptime(iso_string, "%Y-%m-%dT%H:%M:%S+00:00")
