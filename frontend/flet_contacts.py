@@ -2,7 +2,7 @@ import flet as ft
 from datetime import datetime
 from components.paginated_list import paginated_list_view
 from components.dialogcontrol import dialog_controls
-
+from components.error import error_container, show_error
 from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/contacts/"
@@ -47,13 +47,12 @@ def build_contact_form(current_data, on_submit, on_cancel, page):
                 "date_of_birth": dob,
             }
             on_submit(payload)
-        except Exception as err:
-            page.snack_bar.content.value = f"Error: {err}"
-            page.open(page.snack_bar)
-            page.update()
+        except Exception as e:
+            show_error(f"Error: {e}", error_container, page)
 
     return ft.Column([
         *inputs.values(),
+        error_container,
         dialog_controls(on_cancel, handle_submit, but_color),
     ])
 

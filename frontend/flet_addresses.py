@@ -1,6 +1,7 @@
 import flet as ft
 from components.paginated_list import paginated_list_view
 from components.dialogcontrol import dialog_controls
+from components.error import error_container, show_error
 from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/addresses/"
@@ -11,7 +12,7 @@ but_color = ft.Colors.GREEN_800
 
 ADDRESS_FIELDS = [
     {"key": "name", "label": "Adresnaam", "width": 100},
-    {"key": "street", "label": "Straat", "width": 400},
+    {"key": "street", "label": "Straat", "width": 200},
     {"key": "zip", "label": "Postcode", "width": 100},
     {"key": "city", "label": "Plaats", "width": 100},
     {"key": "country", "label": "Land", "width": 100},
@@ -48,10 +49,8 @@ def build_address_form(current_data, on_submit, on_cancel, page):
                 "country": country_input.value.strip(),
             }
             on_submit(payload)
-        except Exception as err:
-            page.snack_bar.content.value = f"Error: {err}"
-            page.open(page.snack_bar)
-            page.update()
+        except Exception as e:
+            show_error(f"Error: {e}", error_container, page)
 
     return ft.Column([
         name_input,
@@ -59,6 +58,7 @@ def build_address_form(current_data, on_submit, on_cancel, page):
         zip_input,
         city_input,
         country_input,
+        error_container,
         dialog_controls(on_cancel, handle_submit, but_color),
     ])
 

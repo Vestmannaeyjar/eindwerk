@@ -4,6 +4,7 @@ from datetime import datetime
 from components.datetime_functions import parse_iso_datetime
 from components.paginated_list import paginated_list_view
 from components.dialogcontrol import dialog_controls
+from components.error import error_container, show_error
 from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/tasks/tasks/"
@@ -42,12 +43,6 @@ def build_task_form(current_data, on_submit, on_cancel, page):
         options=[],
     )
 
-    error_text = ft.Text(
-        value="",
-        visible=False,
-        size=14
-    )
-
     async def load_projects():
 
         project_input.disabled = True
@@ -65,9 +60,9 @@ def build_task_form(current_data, on_submit, on_cancel, page):
             ]
             project_input.hint_text = "Selecteer een project..."
         except requests.RequestException as e:
-            show_error(f"Kon projecten niet laden: {e}")
+            show_error(f"Kon projecten niet laden: {e}", error_container, page)
         except Exception as e:
-            show_error(f"Onverwachte fout: {e}")
+            show_error(f"Onverwachte fout: {e}", error_container, page)
         finally:
             project_input.disabled = False
             page.update()
@@ -88,9 +83,9 @@ def build_task_form(current_data, on_submit, on_cancel, page):
             ]
             assignment_input.hint_text = "Selecteer een verantwoordelijke..."
         except requests.RequestException as e:
-            show_error(f"Kon personen in context niet laden: {e}")
+            show_error(f"Kon personen in context niet laden: {e}", error_container, page)
         except Exception as e:
-            show_error(f"Onverwachte fout: {e}")
+            show_error(f"Onverwachte fout: {e}", error_container, page)
         finally:
             assignment_input.disabled = False
             page.update()
@@ -149,34 +144,21 @@ def build_task_form(current_data, on_submit, on_cancel, page):
             "assignment": contact_id,
         }
 
-    def show_error(message):
-        """Show error message in the form."""
-        error_text.value = message
-        error_text.visible = True
-        page.update()
-
-    def hide_error():
-        """Hide error message."""
-        error_text.visible = False
-        page.update()
-
-    def handle_submit(e):
-        hide_error()
-
+    def handle_submit():
         try:
             payload = validate_form_data()
             on_submit(payload)
         except ValueError as validation_err:
-            show_error(str(validation_err))
-        except Exception as err:
-            show_error(f"Fout bij opslaan: {err}")
+            show_error(str(validation_err), error_container, page)
+        except Exception as e:
+            show_error(f"Fout bij opslaan: {e}", error_container, page)
 
     return ft.Column([
         subject_input,
         deadline_input,
         project_input,
         assignment_input,
-        error_text,
+        error_container,
         dialog_controls(on_cancel, handle_submit, but_color),
     ], width=400, spacing=10)
 

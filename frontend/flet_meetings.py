@@ -4,6 +4,7 @@ import requests
 from components.paginated_list import paginated_list_view
 from components.datetime_functions import parse_date
 from components.dialogcontrol import dialog_controls
+from components.error import error_container, show_error
 from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/tasks/meetings/"
@@ -73,12 +74,6 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
     enddate_input = ft.TextField(label=FIELD_LABELS["enddate"])
     digital_space_input = ft.TextField(label=FIELD_LABELS["digital_space"])
     room_dropdown = ft.Dropdown(label=FIELD_LABELS["meetingroom"])
-    error_text = ft.Text(
-        value="",
-        visible=False,
-        size=14,
-        color=ft.Colors.RED,
-    )
 
     selected_contacts = []
     selected_contacts_display = ft.Column()
@@ -132,17 +127,10 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
 
             print(f"Created {len(contacts_dropdown.options)} dropdown options")  # Debug print
             page.update()
-
         except requests.exceptions.RequestException as e:
-            print(f"Network error loading contacts: {e}")
-            error_text.value = f"Fout bij laden contacten: {e}"
-            error_text.visible = True
-            page.update()
+            show_error(f"Fout bij laden contacten: {e}", error_container, page)
         except Exception as e:
-            print(f"Error loading contacts: {e}")
-            error_text.value = f"Fout bij laden contacten: {e}"
-            error_text.visible = True
-            page.update()
+            show_error(f"Fout bij laden contacten: {e}", error_container, page)
 
     def load_meeting_rooms():
         try:
@@ -382,19 +370,8 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
 
         return payload
 
-    def show_error(message):
-        """Show error message in the form."""
-        error_text.value = message
-        error_text.visible = True
-        page.update()
-
-    def hide_error():
-        """Hide error message."""
-        error_text.visible = False
-        page.update()
-
     def handle_submit(e):
-        hide_error()
+        hide_error(error_container, page)
 
         try:
             payload = validate_form_data()
@@ -402,19 +379,19 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
             on_submit(payload)
         except ValueError as validation_err:
             print(f"Validation error: {validation_err}")
-            show_error(str(validation_err))
+            show_error(str(validation_err), error_container, page)
         except requests.exceptions.HTTPError as http_err:
             print(f"HTTP error: {http_err}")
             try:
                 # Try to get the detailed error response
                 error_detail = http_err.response.json()
                 print(f"API error details: {error_detail}")
-                show_error(f"API fout: {error_detail}")
+                show_error(f"API fout: {error_detail}", error_container, page)
             except:
-                show_error(f"HTTP fout: {http_err}")
+                show_error(f"HTTP fout: {http_err}", error_container, page)
         except Exception as err:
             print(f"General error: {err}")
-            show_error(f"Fout bij opslaan: {err}")
+            show_error(f"Fout bij opslaan: {err}", error_container, page)
 
     return ft.Column([
         title_input,
@@ -426,7 +403,7 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
         ft.Text("Deelnemers", size=16, weight=ft.FontWeight.BOLD),
         contacts_dropdown,
         selected_contacts_display,
-        error_text,
+        error_container,
         dialog_controls(on_cancel, handle_submit, but_color),
     ])
 

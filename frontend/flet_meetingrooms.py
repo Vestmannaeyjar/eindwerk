@@ -1,6 +1,7 @@
 import flet as ft
 from components.paginated_list import paginated_list_view
 from components.dialogcontrol import dialog_controls
+from components.error import error_container, show_error
 from utilities import render_row, render_task_header
 
 API_BASE_URL = "http://127.0.0.1:8000/api/tasks/meetingrooms/"
@@ -44,6 +45,7 @@ def build_meetingroom_form(current_data, on_submit, on_cancel, page):
     return ft.Column([
         name_input,
         capacity_input,
+        error_container,
         dialog_controls(on_cancel, handle_submit, but_color),
     ])
 

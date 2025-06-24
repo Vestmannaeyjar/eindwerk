@@ -15,7 +15,6 @@ def main(page: ft.Page):
     page.window.height = 700
     page.update()
 
-
     content = ft.Container(
         expand=True,
         margin=0,
