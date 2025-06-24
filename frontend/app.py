@@ -10,14 +10,13 @@ from flet_tasks import tasks_view
 
 def main(page: ft.Page):
     page.title = "My Ticket App"
-    page.bgcolor = ft.Colors.BLUE_50
     page.window.width = 1600
     page.window.height = 700
     page.update()
 
     content = ft.Container(
         expand=True,
-        margin=0,
+        margin=100,
         padding=0,
     )
     page.add(content)
@@ -63,7 +62,7 @@ def main(page: ft.Page):
     page.appbar = ft.AppBar(
         title=ft.Text("Taken"),
         leading=ft.IconButton(icon="menu", on_click=lambda _: page.open(drawer)),
-        bgcolor=ft.Colors.BLUE_500
+        bgcolor=ft.Colors.TRANSPARENT,
     )
 
     # Show initial view
