@@ -27,7 +27,7 @@ def build_meetingacceptance_form(current_data, on_submit, on_cancel, page):
     if current_data:
         name_input.value = current_data.get("name", "")
 
-    def handle_submit():
+    def handle_submit(e):
         try:
             payload = {
                 "name": name_input.value.strip(),

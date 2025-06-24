@@ -371,8 +371,6 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
         return payload
 
     def handle_submit(e):
-        hide_error(error_container, page)
-
         try:
             payload = validate_form_data()
             print(f"Submitting payload: {payload}")  # Debug print

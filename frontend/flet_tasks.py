@@ -144,7 +144,7 @@ def build_task_form(current_data, on_submit, on_cancel, page):
             "assignment": contact_id,
         }
 
-    def handle_submit():
+    def handle_submit(e):
         try:
             payload = validate_form_data()
             on_submit(payload)
