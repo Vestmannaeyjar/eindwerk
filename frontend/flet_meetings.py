@@ -118,8 +118,12 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
 
                 cont_name = cont.get("contextcontact_name", "").strip()
 
+                # Ensure both values are strings to satisfy type checker
+                contact_id_str = str(cont_id)
+                contact_name_str = cont_name or f"Contact {contact_id_str}"
+
                 contacts_dropdown.options.append(
-                    ft.dropdown.Option(str(cont_id), cont_name)
+                    ft.dropdown.Option(contact_id_str, contact_name_str)
                 )
 
             # Sort contacts by name for better UX
@@ -160,19 +164,20 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
     def add_contact(_):
         """Add selected contact to the meeting"""
         if contacts_dropdown.value:
-            contact_id = contacts_dropdown.value
+            cont_id = contacts_dropdown.value
+
             # Find the contact name from the dropdown options
-            contact_name = None
+            cont_name = None
             for option in contacts_dropdown.options:
-                if option.key == contact_id:
-                    contact_name = option.text
+                if option.key == cont_id:
+                    cont_name = option.text
                     break
 
-            # Check if contact is already added
-            if contact_id not in [c["id"] for c in selected_contacts]:
+            # Only proceed if we found a valid contact name
+            if cont_name is not None and cont_id not in [c["id"] for c in selected_contacts]:
                 selected_contacts.append({
-                    "id": contact_id,
-                    "name": contact_name or f"Contact {contact_id}"
+                    "id": cont_id,
+                    "name": cont_name,  # Now guaranteed to be a string
                 })
                 update_contacts_display()
 
@@ -180,10 +185,10 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
             contacts_dropdown.value = None
             page.update()
 
-    def remove_contact(contact_id):
+    def remove_contact(cont_id):
         """Remove a contact from the selected contacts"""
         nonlocal selected_contacts  # Use nonlocal instead of global
-        selected_contacts = [c for c in selected_contacts if c["id"] != contact_id]
+        selected_contacts = [c for c in selected_contacts if c["id"] != cont_id]
         update_contacts_display()
 
     def update_contacts_display():
@@ -348,11 +353,11 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
 
         # Convert contact IDs to integers
         contact_ids = []
-        for contact in selected_contacts:
+        for c in selected_contacts:
             try:
-                contact_ids.append(int(contact["id"]))
+                contact_ids.append(int(c["id"]))
             except ValueError:
-                raise ValueError(f"Ongeldig contact ID: {contact['id']}")
+                raise ValueError(f"Ongeldig contact ID: {c['id']}")
 
         payload = {
             "name": name,
@@ -379,14 +384,8 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
             print(f"Validation error: {validation_err}")
             show_error(str(validation_err), error_container, page)
         except requests.exceptions.HTTPError as http_err:
-            print(f"HTTP error: {http_err}")
-            try:
-                # Try to get the detailed error response
-                error_detail = http_err.response.json()
-                print(f"API error details: {error_detail}")
-                show_error(f"API fout: {error_detail}", error_container, page)
-            except:
-                show_error(f"HTTP fout: {http_err}", error_container, page)
+            error_detail = http_err.response.json()
+            show_error(f"API fout: {error_detail}", error_container, page)
         except Exception as err:
             print(f"General error: {err}")
             show_error(f"Fout bij opslaan: {err}", error_container, page)

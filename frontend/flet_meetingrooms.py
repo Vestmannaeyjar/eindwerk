@@ -1,4 +1,5 @@
 import flet as ft
+import requests
 from components.paginated_list import paginated_list_view
 from components.dialogcontrol import dialog_controls
 from components.error import error_container, show_error, hide_error
@@ -32,14 +33,30 @@ def build_meetingroom_form(current_data, on_submit, on_cancel, page):
 
     def handle_submit(_):
         hide_error(error_container, page)
-
         try:
             payload = {
                 "name": name_input.value.strip(),
                 "capacity": capacity_input.value,
             }
             on_submit(payload)
+        except requests.exceptions.HTTPError as err:
+            # Attempt to parse JSON error response
+            try:
+                error_data = err.response.json()  # This is the key part
+                error_messages = []
+                for field, messages in error_data.items():
+                    if isinstance(messages, list):
+                        for msg in messages:
+                            error_messages.append(f"{field}: {msg}")
+                    else:
+                        error_messages.append(f"{field}: {messages}")
+                show_error(" • " + "\n • ".join(error_messages), error_container, page)
+                print("test")
+            except Exception:
+                # Fallback if the response isn't JSON or something goes wrong
+                show_error(f"HTTP Error: {err}", error_container, page)
         except Exception as err:
+            # Handle any other errors
             show_error(f"Error: {err}", error_container, page)
 
     return ft.Column([

@@ -73,13 +73,19 @@ def build_task_form(current_data, on_submit, on_cancel, page):
         page.update()
 
         try:
-            res = requests.get(CONTEXTCONTACTS_URL, timeout=5)
-            res.raise_for_status()
-            data = res.json()
-            contextcontacts = data.get("results", data)
+            all_contextcontacts = []
+            url = CONTEXTCONTACTS_URL  # Start with the first page
+
+            while url:
+                res = requests.get(url, timeout=5)
+                res.raise_for_status()
+                data = res.json()
+                all_contextcontacts.extend(data.get("results", data))
+                url = data.get("next")  # DRF provides next page URL
+
             assignment_input.options = [
-                ft.dropdown.Option(key=str(contextcontact["id"]), text=contextcontact["contextcontact_name"])
-                for contextcontact in contextcontacts
+                ft.dropdown.Option(key=str(contact["id"]), text=contact["contextcontact_name"])
+                for contact in all_contextcontacts
             ]
             assignment_input.hint_text = "Selecteer een verantwoordelijke..."
         except requests.RequestException as e:
