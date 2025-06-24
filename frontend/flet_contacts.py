@@ -20,8 +20,8 @@ CONTACT_FIELDS = [
 FIELD_LABELS = {field["key"]: field["label"] for field in CONTACT_FIELDS}
 
 
-def render_contact_row(contact, open_edit_dialog, delete_contact, but_color):
-    return render_row(contact, CONTACT_FIELDS, open_edit_dialog, delete_contact, but_color)
+def render_contact_row(contact, open_edit_dialog, delete_contact, button_color):
+    return render_row(contact, CONTACT_FIELDS, open_edit_dialog, delete_contact, button_color)
 
 
 def build_contact_form(current_data, on_submit, on_cancel, page):
@@ -32,13 +32,10 @@ def build_contact_form(current_data, on_submit, on_cancel, page):
         if current_data and key in current_data:
             value = current_data[key]
             if key == "date_of_birth":
-                try:
-                    value = datetime.strptime(value, "%Y-%m-%d").strftime("%d-%m-%Y")
-                except:
-                    pass
+                value = datetime.strptime(value, "%Y-%m-%d").strftime("%d-%m-%Y")
             inputs[key].value = value
 
-    def handle_submit(e):
+    def handle_submit(_):
         try:
             dob = datetime.strptime(inputs["date_of_birth"].value.strip(), "%d-%m-%Y").strftime("%Y-%m-%d")
             payload = {
@@ -53,7 +50,7 @@ def build_contact_form(current_data, on_submit, on_cancel, page):
     return ft.Column([
         *inputs.values(),
         error_container,
-        dialog_controls(on_cancel, handle_submit, but_color),
+        dialog_controls(on_cancel, handle_submit),
     ])
 
 
@@ -68,7 +65,6 @@ def contacts_view(page: ft.Page):
         render_item_row=lambda contact, open_edit_dialog, delete_contact: render_contact_row(
             contact, open_edit_dialog, delete_contact, but_color),
         build_edit_form=lambda *args: build_contact_form(*args, page=page),
-        build_payload=None,
         render_header=render_task_header(CONTACT_FIELDS),
         p_color=p_color,
         ab_color=ab_color,

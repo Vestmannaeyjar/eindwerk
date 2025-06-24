@@ -1,18 +1,17 @@
 import flet as ft
-from datetime import datetime
 from components.datetime_functions import parse_iso_datetime
 
 
 def render_row(data, fields, edit_cb, delete_cb, but_color):
-    def get_display_value(field, data):
+    def get_display_value(field, data_field):
         """Get the display value for a field."""
         key = field["key"]
 
         # Check if field has a custom display key (for foreign keys)
         if "display_key" in field:
-            value = str(data.get(field["display_key"], ""))
+            value = str(data_field.get(field["display_key"], ""))
         else:
-            value = data.get(key, "")
+            value = data_field.get(key, "")
 
         # Format datetime fields
         if field.get("type") == "datetime" and value:

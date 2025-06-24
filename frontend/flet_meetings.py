@@ -64,8 +64,8 @@ def parse_datetime_input(date_str):
     return None
 
 
-def render_meeting_row(meeting, open_edit_dialog, delete_meeting, but_color):
-    return render_row(meeting, MEETING_FIELDS, open_edit_dialog, delete_meeting, but_color)
+def render_meeting_row(meeting, open_edit_dialog, delete_meeting, button_color):
+    return render_row(meeting, MEETING_FIELDS, open_edit_dialog, delete_meeting, button_color)
 
 
 def build_meeting_form(current_data, on_submit, on_cancel, page):
@@ -111,15 +111,15 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
 
             # Create dropdown options using firstname and lastname
             contacts_dropdown.options = []
-            for contact in all_contacts:
-                contact_id = contact.get("id")
-                if contact_id is None:
+            for cont in all_contacts:
+                cont_id = cont.get("id")
+                if cont_id is None:
                     continue
 
-                contact_name = contact.get("contextcontact_name", "").strip()
+                cont_name = contact.get("contextcontact_name", "").strip()
 
                 contacts_dropdown.options.append(
-                    ft.dropdown.Option(str(contact_id), contact_name)
+                    ft.dropdown.Option(str(cont_id), cont_name)
                 )
 
             # Sort contacts by name for better UX
@@ -127,10 +127,10 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
 
             print(f"Created {len(contacts_dropdown.options)} dropdown options")  # Debug print
             page.update()
-        except requests.exceptions.RequestException as e:
-            show_error(f"Fout bij laden contacten: {e}", error_container, page)
-        except Exception as e:
-            show_error(f"Fout bij laden contacten: {e}", error_container, page)
+        except requests.exceptions.RequestException as err1:
+            show_error(f"Fout bij laden contacten: {err1}", error_container, page)
+        except Exception as err2:
+            show_error(f"Fout bij laden contacten: {err2}", error_container, page)
 
     def load_meeting_rooms():
         try:
@@ -152,12 +152,12 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
             print(f"Loaded {len(room_dropdown.options)} meeting rooms")  # Debug print
             page.update()
 
-        except requests.exceptions.RequestException as e:
-            print(f"Network error loading meeting rooms: {e}")
-        except Exception as e:
-            print(f"Error loading meeting rooms: {e}")
+        except requests.exceptions.RequestException as err1:
+            print(f"Network error loading meeting rooms: {err1}")
+        except Exception as err2:
+            print(f"Error loading meeting rooms: {err2}")
 
-    def add_contact(e):
+    def add_contact(_):
         """Add selected contact to the meeting"""
         if contacts_dropdown.value:
             contact_id = contacts_dropdown.value
@@ -195,15 +195,15 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
                 ft.Text("Geselecteerde deelnemers:", weight=ft.FontWeight.BOLD)
             )
 
-            for contact in selected_contacts:
+            for cont in selected_contacts:
                 selected_contacts_display.controls.append(
                     ft.Row([
-                        ft.Text(contact["name"]),
+                        ft.Text(cont["name"]),
                         ft.IconButton(
                             icon=ft.Icons.CLOSE,
                             icon_color=ft.Colors.RED,
                             icon_size=16,
-                            on_click=lambda e, cid=contact["id"]: remove_contact(cid),
+                            on_click=lambda _, cid=cont["id"]: remove_contact(cid),
                             tooltip="Verwijder deelnemer"
                         )
                     ])
@@ -222,32 +222,27 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
     load_meeting_rooms()
     load_contacts()
 
+    def parse_and_format_datetime(date_str, field_name="date"):
+        """Parse ISO datetime string and format for display, with error handling."""
+        if not date_str:
+            return ""
+
+        try:
+            dt = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ")
+            return dt.strftime("%d-%m-%Y %H:%M")
+        except (ValueError, TypeError) as e:
+            print(f"Error parsing {field_name} '{date_str}': {e}")
+            return date_str
+
     if current_data:
         title_input.value = current_data.get("name", "")
 
-        s_date_str = current_data.get("startdate", "")
-        e_date_str = current_data.get("enddate", "")
-
-        # Fix: Add null checks before parsing datetime
-        if s_date_str:  # Only parse if not None/empty
-            try:
-                s_dt = datetime.strptime(s_date_str, "%Y-%m-%dT%H:%M:%SZ")
-                startdate_input.value = s_dt.strftime("%d-%m-%Y %H:%M")
-            except (ValueError, TypeError) as e:
-                print(f"Error parsing startdate '{s_date_str}': {e}")
-                startdate_input.value = s_date_str if s_date_str else ""
-        else:
-            startdate_input.value = ""
-
-        if e_date_str:  # Only parse if not None/empty
-            try:
-                e_dt = datetime.strptime(e_date_str, "%Y-%m-%dT%H:%M:%SZ")
-                enddate_input.value = e_dt.strftime("%d-%m-%Y %H:%M")
-            except (ValueError, TypeError) as e:
-                print(f"Error parsing enddate '{e_date_str}': {e}")
-                enddate_input.value = e_date_str if e_date_str else ""
-        else:
-            enddate_input.value = ""
+        startdate_input.value = parse_and_format_datetime(
+            current_data.get("startdate", ""), "startdate"
+        )
+        enddate_input.value = parse_and_format_datetime(
+            current_data.get("enddate", ""), "enddate"
+        )
 
         digital_space_input.value = current_data.get("digital_space", "")
         room_dropdown.value = str(current_data.get("meetingroom", "")) if current_data.get("meetingroom") else None
@@ -370,7 +365,7 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
 
         return payload
 
-    def handle_submit(e):
+    def handle_submit(_):
         try:
             payload = validate_form_data()
             print(f"Submitting payload: {payload}")  # Debug print
@@ -402,7 +397,7 @@ def build_meeting_form(current_data, on_submit, on_cancel, page):
         contacts_dropdown,
         selected_contacts_display,
         error_container,
-        dialog_controls(on_cancel, handle_submit, but_color),
+        dialog_controls(on_cancel, handle_submit),
     ])
 
 
@@ -417,7 +412,6 @@ def meetings_view(page: ft.Page):
         render_item_row=lambda meeting, open_edit_dialog, delete_meeting: render_meeting_row(
             meeting, open_edit_dialog, delete_meeting, but_color),
         build_edit_form=lambda *args: build_meeting_form(*args, page=page),
-        build_payload=None,
         render_header=render_task_header(MEETING_FIELDS),
         p_color=p_color,
         ab_color=ab_color,

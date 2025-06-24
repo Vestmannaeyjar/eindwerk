@@ -17,8 +17,8 @@ MEETINGACCEPTANCE_FIELDS = [
 FIELD_LABELS = {field["key"]: field["label"] for field in MEETINGACCEPTANCE_FIELDS}
 
 
-def render_meetingacceptance_row(meetingacceptance, open_edit_dialog, delete_meetingacceptance, but_color):
-    return render_row(meetingacceptance, MEETINGACCEPTANCE_FIELDS, open_edit_dialog, delete_meetingacceptance, but_color)
+def render_meetingacceptance_row(meetingacceptance, open_edit_dialog, delete_meetingacceptance, button_color):
+    return render_row(meetingacceptance, MEETINGACCEPTANCE_FIELDS, open_edit_dialog, delete_meetingacceptance, button_color)
 
 
 def build_meetingacceptance_form(current_data, on_submit, on_cancel, page):
@@ -27,7 +27,7 @@ def build_meetingacceptance_form(current_data, on_submit, on_cancel, page):
     if current_data:
         name_input.value = current_data.get("name", "")
 
-    def handle_submit(e):
+    def handle_submit(_):
         try:
             payload = {
                 "name": name_input.value.strip(),
@@ -39,7 +39,7 @@ def build_meetingacceptance_form(current_data, on_submit, on_cancel, page):
     return ft.Column([
         name_input,
         error_container,
-        dialog_controls(on_cancel, handle_submit, but_color),
+        dialog_controls(on_cancel, handle_submit),
     ])
 
 
@@ -54,7 +54,6 @@ def meetingacceptances_view(page: ft.Page):
         render_item_row=lambda meetingacceptance, open_edit_dialog, delete_meetingacceptance: render_meetingacceptance_row(
             meetingacceptance, open_edit_dialog, delete_meetingacceptance, but_color),
         build_edit_form=lambda *args: build_meetingacceptance_form(*args, page=page),
-        build_payload=None,
         render_header=render_task_header(MEETINGACCEPTANCE_FIELDS),
         p_color=p_color,
         ab_color=ab_color,

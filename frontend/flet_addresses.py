@@ -21,8 +21,8 @@ ADDRESS_FIELDS = [
 FIELD_LABELS = {field["key"]: field["label"] for field in ADDRESS_FIELDS}
 
 
-def render_address_row(address, open_edit_dialog, delete_address, but_color):
-    return render_row(address, ADDRESS_FIELDS, open_edit_dialog, delete_address, but_color)
+def render_address_row(address, open_edit_dialog, delete_address, button_color):
+    return render_row(address, ADDRESS_FIELDS, open_edit_dialog, delete_address, button_color)
 
 
 def build_address_form(current_data, on_submit, on_cancel, page):
@@ -39,7 +39,7 @@ def build_address_form(current_data, on_submit, on_cancel, page):
         city_input.value = current_data.get("city", "")
         country_input.value = current_data.get("country", "")
 
-    def handle_submit(e):
+    def handle_submit(_):
         try:
             payload = {
                 "name": name_input.value.strip(),
@@ -59,7 +59,7 @@ def build_address_form(current_data, on_submit, on_cancel, page):
         city_input,
         country_input,
         error_container,
-        dialog_controls(on_cancel, handle_submit, but_color),
+        dialog_controls(on_cancel, handle_submit),
     ])
 
 
@@ -74,7 +74,6 @@ def addresses_view(page: ft.Page):
         render_item_row=lambda address, open_edit_dialog, delete_address: render_address_row(
             address, open_edit_dialog, delete_address, but_color),
         build_edit_form=lambda *args: build_address_form(*args, page=page),
-        build_payload=None,
         render_header=render_task_header(ADDRESS_FIELDS),
         p_color=p_color,
         ab_color=ab_color,

@@ -25,8 +25,8 @@ TASK_FIELDS = [
 FIELD_LABELS = {field["key"]: field["label"] for field in TASK_FIELDS}
 
 
-def render_task_row(task, open_edit_dialog, delete_task, but_color):
-    return render_row(task, TASK_FIELDS, open_edit_dialog, delete_task, but_color)
+def render_task_row(task, open_edit_dialog, delete_task, button_color):
+    return render_row(task, TASK_FIELDS, open_edit_dialog, delete_task, button_color)
 
 
 def build_task_form(current_data, on_submit, on_cancel, page):
@@ -144,7 +144,7 @@ def build_task_form(current_data, on_submit, on_cancel, page):
             "assignment": contact_id,
         }
 
-    def handle_submit(e):
+    def handle_submit(_):
         try:
             payload = validate_form_data()
             on_submit(payload)
@@ -159,7 +159,7 @@ def build_task_form(current_data, on_submit, on_cancel, page):
         project_input,
         assignment_input,
         error_container,
-        dialog_controls(on_cancel, handle_submit, but_color),
+        dialog_controls(on_cancel, handle_submit),
     ], width=400, spacing=10)
 
 
@@ -179,7 +179,6 @@ def tasks_view(page: ft.Page):
         render_item_row=lambda task, open_edit_dialog, delete_task: render_task_row(
             task, open_edit_dialog, delete_task, but_color),
         build_edit_form=lambda *args: build_task_form(*args, page=page),
-        build_payload=None,  # Not used; logic in form
         render_header=render_task_header(TASK_FIELDS),
         p_color=p_color,
         ab_color=ab_color,

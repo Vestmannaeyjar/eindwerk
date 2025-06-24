@@ -18,8 +18,8 @@ MEETINGROOM_FIELDS = [
 FIELD_LABELS = {field["key"]: field["label"] for field in MEETINGROOM_FIELDS}
 
 
-def render_meetingroom_row(meetingroom, open_edit_dialog, delete_meetingroom, but_color):
-    return render_row(meetingroom, MEETINGROOM_FIELDS, open_edit_dialog, delete_meetingroom, but_color)
+def render_meetingroom_row(meetingroom, open_edit_dialog, delete_meetingroom, button_color):
+    return render_row(meetingroom, MEETINGROOM_FIELDS, open_edit_dialog, delete_meetingroom, button_color)
 
 
 def build_meetingroom_form(current_data, on_submit, on_cancel, page):
@@ -30,7 +30,7 @@ def build_meetingroom_form(current_data, on_submit, on_cancel, page):
         name_input.value = current_data.get("name", "")
         capacity_input.value = current_data.get("capacity", "")
 
-    def handle_submit(e):
+    def handle_submit(_):
         try:
             payload = {
                 "name": name_input.value.strip(),
@@ -38,15 +38,13 @@ def build_meetingroom_form(current_data, on_submit, on_cancel, page):
             }
             on_submit(payload)
         except Exception as err:
-            page.snack_bar.content.value = f"Error: {err}"
-            page.open(page.snack_bar)
-            page.update()
+            show_error(f"Error: {err}", error_container, page)
 
     return ft.Column([
         name_input,
         capacity_input,
         error_container,
-        dialog_controls(on_cancel, handle_submit, but_color),
+        dialog_controls(on_cancel, handle_submit),
     ])
 
 
@@ -61,7 +59,6 @@ def meetingrooms_view(page: ft.Page):
         render_item_row=lambda meetingroom, open_edit_dialog, delete_meetingroom: render_meetingroom_row(
             meetingroom, open_edit_dialog, delete_meetingroom, but_color),
         build_edit_form=lambda *args: build_meetingroom_form(*args, page=page),
-        build_payload=None,
         render_header=render_task_header(MEETINGROOM_FIELDS),
         p_color=p_color,
         ab_color=ab_color,

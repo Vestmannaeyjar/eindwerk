@@ -19,8 +19,8 @@ PROJECT_FIELDS = [
 FIELD_LABELS = {field["key"]: field["label"] for field in PROJECT_FIELDS}
 
 
-def render_project_row(project, open_edit_dialog, delete_project, but_color):
-    return render_row(project, PROJECT_FIELDS, open_edit_dialog, delete_project, but_color)
+def render_project_row(project, open_edit_dialog, delete_project, button_color):
+    return render_row(project, PROJECT_FIELDS, open_edit_dialog, delete_project, button_color)
 
 
 def build_project_form(current_data, on_submit, on_cancel, page):
@@ -33,7 +33,7 @@ def build_project_form(current_data, on_submit, on_cancel, page):
         startdate_input.value = current_data.get("name", "")
         enddate_input.value = current_data.get("name", "")
 
-    def handle_submit(e):
+    def handle_submit(_):
         try:
             payload = {
                 "name": name_input.value.strip(),
@@ -45,7 +45,7 @@ def build_project_form(current_data, on_submit, on_cancel, page):
     return ft.Column([
         name_input,
         error_container,
-        dialog_controls(on_cancel, handle_submit, but_color),
+        dialog_controls(on_cancel, handle_submit),
     ])
 
 
@@ -60,7 +60,6 @@ def projects_view(page: ft.Page):
         render_item_row=lambda project, open_edit_dialog, delete_project: render_project_row(
             project, open_edit_dialog, delete_project, but_color),
         build_edit_form=lambda *args: build_project_form(*args, page=page),
-        build_payload=None,
         render_header=render_task_header(PROJECT_FIELDS),
         p_color=p_color,
         ab_color=ab_color,
